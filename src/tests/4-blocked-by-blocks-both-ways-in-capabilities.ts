@@ -11,7 +11,7 @@ export default async (runner: Runner) => {
     await runner.clickTab('capabilities')
     await wait(3000)
 
-    await runner.click(`button.blocked-by-${ID_CHUCK_ROAST}`)
+    await runner.click(`button.edit-chip-${ID_CHUCK_ROAST}`)
 
     await runner.select('select[name="selectedCutBlockers.0"]', ID_ARM_ROAST)
     await runner.select('select[name="selectedCutBlockers.1"]', ID_BLADE)
@@ -19,7 +19,7 @@ export default async (runner: Runner) => {
 
     await runner.clickDoneInDialog()
 
-    await runner.click(`button.blocked-by-${ID_ARM_ROAST}`)
+    await runner.click(`button.edit-chip-${ID_ARM_ROAST}`)
 
     await runner.assertValueEquals(
         'select[name="selectedCutBlockers.0"]',
@@ -29,7 +29,7 @@ export default async (runner: Runner) => {
 
     await runner.clickDoneInDialog()
 
-    await runner.click(`button.blocked-by-${ID_BLADE}`)
+    await runner.click(`button.edit-chip-${ID_BLADE}`)
 
     await runner.assertValueEquals(
         'select[name="selectedCutBlockers.0"]',
@@ -45,7 +45,7 @@ export default async (runner: Runner) => {
 
     await runner.clickDoneInDialog()
 
-    await runner.click(`button.blocked-by-${ID_EYE_ROAST}`)
+    await runner.click(`button.edit-chip-${ID_EYE_ROAST}`)
 
     await runner.assertValueEquals(
         'select[name="selectedCutBlockers.0"]',
@@ -57,7 +57,7 @@ export default async (runner: Runner) => {
 
     await runner.clickDoneInDialog()
 
-    await runner.click(`button.blocked-by-${ID_CHUCK_ROAST}`)
+    await runner.click(`button.edit-chip-${ID_CHUCK_ROAST}`)
 
     await runner.assertValueEquals(
         'select[name="selectedCutBlockers.0"]',

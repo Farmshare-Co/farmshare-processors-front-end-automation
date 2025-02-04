@@ -125,6 +125,8 @@ export default class Runner {
     }
 
     public async select(selector: string, value: string) {
+        await this.waitForSelector(selector)
+        this.log.info(`Selecting "${value}" in "${selector}"`)
         await this.page.select(selector, value)
     }
 
