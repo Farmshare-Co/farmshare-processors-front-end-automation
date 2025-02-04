@@ -119,7 +119,9 @@ export default class Runner {
     }
 
     public async clickDoneInDialog() {
+        this.log.info('Clicking done in dialog...')
         await this.click('.modal-content .modal-footer .btn-primary')
+        await wait(500)
     }
 
     public async select(selector: string, value: string) {

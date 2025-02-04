@@ -19,4 +19,6 @@ void (async () => {
     }
 
     await runner.shutdown()
+
+    log.info('Success!')
 })()
