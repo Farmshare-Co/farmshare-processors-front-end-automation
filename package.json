@@ -13,6 +13,7 @@
     "clean": "yarn run clean.build",
     "fix.lint": "eslint --fix --cache '**/*.ts'",
     "go": "node build/index.js",
+    "all": "node build/all.js",
     "lint.tsc": "tsc -p . --noEmit",
     "lint": "eslint --cache '**/*.ts'",
     "post.watch.build": "yarn run build.copy-files && yarn run build.resolve-paths",
@@ -24,7 +25,9 @@
     "watch.tsc": "tsc -w"
   },
   "devDependencies": {
+    "@sprucelabs/globby": "^2.0.501",
     "@sprucelabs/resolve-path-aliases": "^2.0.523",
+    "@sprucelabs/spruce-skill-utils": "^31.2.29",
     "@types/node": "^22.10.2",
     "chokidar-cli": "^3.0.0",
     "eslint": "^9.17.0",

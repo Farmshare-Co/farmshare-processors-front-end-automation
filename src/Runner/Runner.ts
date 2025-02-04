@@ -1,17 +1,25 @@
+import { buildLog, diskUtil } from '@sprucelabs/spruce-skill-utils'
+import { assert } from '@sprucelabs/test-utils'
 import env from 'dotenv'
 import puppeteer, { Browser, Page } from 'puppeteer'
 import wait from './wait'
 env.config()
 
 export default class Runner {
-   private domain: string
-    protected constructor(protected page: Page, protected browser: Browser) {
-        this.domain = 'https://partners-dev.farmshare.co'
+    private domain: string
+    private log = buildLog('Runner')
+
+    protected constructor(
+        protected page: Page,
+        protected browser: Browser
+    ) {
+        this.domain = process.env.DOMAIN ?? 'https://partners-dev.farmshare.co'
     }
 
     public static async Runner() {
         const browser = await puppeteer.launch({
             headless: false,
+            userDataDir: diskUtil.createRandomTempDir(),
         })
         const page = await browser.newPage()
         await page.setViewport({
@@ -22,9 +30,29 @@ export default class Runner {
     }
 
     public async login() {
+        this.log.info('Logging in...')
+
         await this.goto(this.domain)
+
         await this.click('button.text-primary')
-        await this.waitForSelector('[data-provider="google-apps"]')
+
+        if (process.env.EMAIL) {
+            await this.loginWithEmailAndPassword()
+        } else {
+            await this.loginUsingGoogle()
+        }
+
+        await this.waitForSelector('[data-rr-ui-event-key="capabilities"]')
+    }
+
+    private async loginWithEmailAndPassword() {
+        await this.type('[name="username"]', process.env.EMAIL!)
+        await this.click('[type="submit"]')
+        await this.type('[name="password"]', process.env.PASSWORD!)
+        await this.click('[type="submit"]')
+    }
+
+    private async loginUsingGoogle() {
         await this.click('[data-provider="google-apps"]')
         await this.waitForSelector('[autocomplete="username webauthn"]')
         await this.type(
@@ -41,8 +69,6 @@ export default class Runner {
         await this.type('[type="password"]', process.env.GOOGLE_PASSWORD!)
 
         await this.clickAtIndex('button', 1)
-
-        await this.waitForSelector('[data-rr-ui-event-key="capabilities"]')
     }
 
     public async clickAtIndex(selector: string, idx: number) {
@@ -54,9 +80,11 @@ export default class Runner {
         const node = await this.page.$(selector)
 
         if (!node) {
-            throw new Error(`Could not find element with selector '${selector}'!`)
+            throw new Error(
+                `Could not find element with selector '${selector}'!`
+            )
         }
-        
+
         return node
     }
 
@@ -65,7 +93,9 @@ export default class Runner {
         const node = nodes[idx]
 
         if (!node) {
-            throw new Error(`Could not find element with selector '${selector}' at index ${idx}!. I did find ${nodes.length} elements, though!`)
+            throw new Error(
+                `Could not find element with selector '${selector}' at index ${idx}!. I did find ${nodes.length} elements, though!`
+            )
         }
 
         return node
@@ -75,12 +105,17 @@ export default class Runner {
         await this.page.goto(url)
     }
 
+    public async clickTab(tab: string) {
+        await this.click(`[data-rr-ui-event-key="${tab}"]`)
+    }
+
     public async click(selector: string) {
+        await this.waitForSelector(selector)
         await this.page.click(selector)
     }
 
     public async waitForSelector(selector: string) {
-       await this.page.waitForSelector(selector)
+        return await this.page.waitForSelector(selector)
     }
 
     public async clickDoneInDialog() {
@@ -91,12 +126,31 @@ export default class Runner {
         await this.page.select(selector, value)
     }
 
-    // public async getValue(selector: string) {
-        // const element = await this.waitForSelector(selector)
-        // return element?.evaluate((node) => node.value)
-    // }
+    public async getValue(selector: string) {
+        //@ts-ignore
+        return await this.page.$eval(selector, (el: HTMLInputElement) => {
+            debugger
+            return el.value
+        })
+    }
+
+    public async assertValueEquals(
+        selector: string,
+        expected: string,
+        msg?: string
+    ) {
+        const value = await this.getValue(selector)
+        assert.isEqual(
+            value,
+            expected,
+            msg ??
+                `Input matching "${selector}" should have value "${expected}", but got "${value}".`
+        )
+    }
 
     public async type(selector: string, text: string) {
+        await this.waitForSelector(selector)
+        this.log.info(`Typing "${text}" into "${selector}"`)
         await this.page.type(selector, text)
     }
 
@@ -105,7 +159,7 @@ export default class Runner {
     }
 
     public async shutdown() {
-       await this.browser.close()
+        await this.browser.close()
     }
 
     public async redirect(destination: string) {
