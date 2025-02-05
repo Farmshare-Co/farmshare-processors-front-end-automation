@@ -1,12 +1,11 @@
 import { buildLog, diskUtil } from '@sprucelabs/spruce-skill-utils'
-import { assert } from '@sprucelabs/test-utils'
 import env from 'dotenv'
 import puppeteer, { Browser, Page } from 'puppeteer'
 import wait from './wait'
 env.config()
 
 export default class Runner {
-    private domain: string
+    public domain: string
     private log = buildLog('Runner')
 
     protected constructor(
@@ -31,48 +30,6 @@ export default class Runner {
 
     public async refresh() {
         await this.page.reload()
-    }
-
-    public async login() {
-        this.log.info('Logging in...')
-
-        await this.goto(this.domain)
-
-        await this.click('button.text-primary')
-
-        if (process.env.EMAIL) {
-            await this.loginWithEmailAndPassword()
-        } else {
-            await this.loginUsingGoogle()
-        }
-
-        await this.waitForSelector('[data-rr-ui-event-key="capabilities"]')
-    }
-
-    private async loginWithEmailAndPassword() {
-        await this.type('[name="username"]', process.env.EMAIL!)
-        await this.click('[type="submit"]')
-        await this.type('[name="password"]', process.env.PASSWORD!)
-        await this.click('[type="submit"]')
-    }
-
-    private async loginUsingGoogle() {
-        await this.click('[data-provider="google-apps"]')
-        await this.waitForSelector('[autocomplete="username webauthn"]')
-        await this.type(
-            '[autocomplete="username webauthn"]',
-            process.env.GOOGLE_EMAIL!
-        )
-        await this.click('[id="identifierNext"]')
-
-        await wait(2000)
-
-        await this.waitForSelector('[type="password"]')
-
-        await wait(2000)
-        await this.type('[type="password"]', process.env.GOOGLE_PASSWORD!)
-
-        await this.clickAtIndex('button', 1)
     }
 
     public async clickAtIndex(selector: string, idx: number) {
@@ -109,11 +66,6 @@ export default class Runner {
         await this.page.goto(url)
     }
 
-    public async clickTab(tab: string) {
-        await this.click(`[data-rr-ui-event-key="${tab}"]`)
-        await wait(3000)
-    }
-
     public async click(selector: string) {
         await this.waitForSelector(selector)
         await this.page.click(selector)
@@ -122,12 +74,6 @@ export default class Runner {
 
     public async waitForSelector(selector: string) {
         return await this.page.waitForSelector(selector)
-    }
-
-    public async clickDoneInDialog() {
-        this.log.info('Clicking done in dialog...')
-        await this.click('.modal-content .modal-footer .btn-primary')
-        await wait(1000)
     }
 
     public async select(selector: string, value: string) {
@@ -149,28 +95,6 @@ export default class Runner {
         return await this.page.$eval(selector, (el: HTMLInputElement) => {
             return !el.disabled
         })
-    }
-
-    public clickChipEdit(id: string) {
-        return this.click(`button.edit-chip-${id}`)
-    }
-
-    public clickChip(id: string) {
-        return this.click(`button.chip-${id}`)
-    }
-
-    public async assertValueEquals(
-        selector: string,
-        expected: string,
-        msg?: string
-    ) {
-        const value = await this.getValue(selector)
-        assert.isEqual(
-            value,
-            expected,
-            msg ??
-                `Input matching "${selector}" should have value "${expected}", but got "${value}".`
-        )
     }
 
     public async type(selector: string, text: string) {
