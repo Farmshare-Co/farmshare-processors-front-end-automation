@@ -1,4 +1,9 @@
-export const ID_CHUCK_ROAST = '66fac7b8e56b9f6d628a53ff'
-export const ID_ARM_ROAST = '66fac7b8e56b9f6d628a5401'
-export const ID_BLADE = '66fac7b8e56b9f6d628a5400'
-export const ID_EYE_ROAST = '66fac7b8e56b9f6d628a5402'
+export const ID_CHUCK_ROAST_EXEMPT = '66fac7b8e56b9f6d628a53ff'
+export const ID_ARM_ROAST_EXEMPT = '66fac7b8e56b9f6d628a5401'
+export const ID_BLADE_EXEMPT = '66fac7b8e56b9f6d628a5400'
+export const ID_EYE_ROAST_EXEMPT = '66fac7b8e56b9f6d628a5402'
+
+export const ID_CHUCK_ROAST_USDA = '6723c7cf4718325683ea2e4e'
+export const ID_ARM_ROAST_USDA = '6723c7cf4718325683ea2e50'
+export const ID_BLADE_USDA = '6723c7cf4718325683ea2e4f'
+export const ID_EYE_ROAST_USDA = '6723c7cf4718325683ea2e51'

@@ -1,9 +1,11 @@
-import Runner from '../Runner/Runner'
+import { AbstractSingleRun } from '../Runner/SingleRun'
 import wait from '../Runner/wait'
 
-export default async (runner: Runner) => {
-    await runner.redirect('/admin/job-export')
-    await wait(3000)
-    await runner.clickAtIndex('button', 2)
-    await runner.redirect('/processor')
+export default class Run extends AbstractSingleRun {
+    public async run(): Promise<void> {
+        await this.runner.redirect('/admin/job-export')
+        await wait(3000)
+        await this.runner.clickAtIndex('button', 2)
+        await this.runner.redirect('/processor')
+    }
 }

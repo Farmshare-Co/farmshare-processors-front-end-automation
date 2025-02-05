@@ -14,11 +14,12 @@ void (async () => {
 
     for (const match of matches) {
         const file = diskUtil.resolveFile(cwd, match)
-        const { default: run } = require(file as string)
-        await run(runner, log)
+        const { default: Run } = require(file as string)
+        log.info(`Running ${match}`)
+        const single = new Run(runner)
+        await single.run()
+        log.info(`Finished ${match}`)
     }
 
-    await runner.shutdown()
-
-    log.info('Success!')
+    log.info('All tests passed!')
 })()

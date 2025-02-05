@@ -1,5 +1,7 @@
-import Runner from '../Runner/Runner'
+import { AbstractSingleRun } from '../Runner/SingleRun'
 
-export default async (runner: Runner) => {
-    await runner.login()
+export default class Run extends AbstractSingleRun {
+    public async run(): Promise<void> {
+        await this.runner.login()
+    }
 }

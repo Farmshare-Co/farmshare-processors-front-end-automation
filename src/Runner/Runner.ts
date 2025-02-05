@@ -29,6 +29,10 @@ export default class Runner {
         return new this(page, browser)
     }
 
+    public async refresh() {
+        await this.page.reload()
+    }
+
     public async login() {
         this.log.info('Logging in...')
 
@@ -107,11 +111,13 @@ export default class Runner {
 
     public async clickTab(tab: string) {
         await this.click(`[data-rr-ui-event-key="${tab}"]`)
+        await wait(3000)
     }
 
     public async click(selector: string) {
         await this.waitForSelector(selector)
         await this.page.click(selector)
+        await wait(1000)
     }
 
     public async waitForSelector(selector: string) {
@@ -121,21 +127,36 @@ export default class Runner {
     public async clickDoneInDialog() {
         this.log.info('Clicking done in dialog...')
         await this.click('.modal-content .modal-footer .btn-primary')
-        await wait(500)
+        await wait(1000)
     }
 
     public async select(selector: string, value: string) {
         await this.waitForSelector(selector)
         this.log.info(`Selecting "${value}" in "${selector}"`)
         await this.page.select(selector, value)
+        await wait(1000)
     }
 
     public async getValue(selector: string) {
         //@ts-ignore
         return await this.page.$eval(selector, (el: HTMLInputElement) => {
-            debugger
             return el.value
         })
+    }
+
+    public async getIsEnabled(selector: string): Promise<boolean> {
+        //@ts-ignore
+        return await this.page.$eval(selector, (el: HTMLInputElement) => {
+            return !el.disabled
+        })
+    }
+
+    public clickChipEdit(id: string) {
+        return this.click(`button.edit-chip-${id}`)
+    }
+
+    public clickChip(id: string) {
+        return this.click(`button.chip-${id}`)
     }
 
     public async assertValueEquals(
