@@ -84,6 +84,7 @@ export default class Runner {
     }
 
     public async getValue(selector: string) {
+        await this.waitForSelector(selector)
         //@ts-ignore
         return await this.page.$eval(selector, (el: HTMLInputElement) => {
             return el.value
@@ -101,6 +102,20 @@ export default class Runner {
         await this.waitForSelector(selector)
         this.log.info(`Typing "${text}" into "${selector}"`)
         await this.page.type(selector, text)
+    }
+
+    public async setInputValue(selector: string, value: string) {
+        await this.waitForSelector(selector)
+        this.log.info(`Setting "${selector}" to "${value}"`)
+        await this.page.$eval(
+            selector,
+            //@ts-ignore
+            (el: HTMLInputElement) => {
+                el.value = ''
+            },
+            value
+        )
+        await this.type(selector, value)
     }
 
     public getCurrentUrl() {

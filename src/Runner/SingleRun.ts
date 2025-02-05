@@ -34,8 +34,12 @@ export abstract class AbstractSingleRun implements SingleRun {
 
     private async loginWithEmailAndPassword() {
         await this.runner.type('[name="username"]', process.env.EMAIL!)
-        await this.runner.click('[type="submit"]')
+        await this.clickSubmit()
         await this.runner.type('[name="password"]', process.env.PASSWORD!)
+        await this.clickSubmit()
+    }
+
+    protected async clickSubmit() {
         await this.runner.click('[type="submit"]')
     }
 
@@ -86,6 +90,9 @@ export abstract class AbstractSingleRun implements SingleRun {
         msg?: string
     ) {
         const value = await this.runner.getValue(selector)
+        this.log.info(
+            `Asserting value of "${selector}" is equal to "${expected}"`
+        )
         assert.isEqual(
             value,
             expected,
