@@ -12,6 +12,7 @@ import { AbstractSingleRun } from '../Runner/SingleRun'
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
+        await this.clickNav('processor')
         await this.clickTab('capabilities')
 
         let chuckRoastId = ID_CHUCK_ROAST_EXEMPT
@@ -53,7 +54,7 @@ export default class Run extends AbstractSingleRun {
         await this.setBlockedByValue(1, bladeId)
         await this.setBlockedByValue(2, eyeRoastId)
 
-        await this.clickDoneInDialog()
+        await this.clickSaveInDialog()
 
         await this.clickChipEdit(armRoastId)
 
@@ -63,7 +64,7 @@ export default class Run extends AbstractSingleRun {
             'Did not block the other way! Check Arm Roast to make sure it has selected Chuck Roast!'
         )
 
-        await this.clickDoneInDialog()
+        await this.clickSaveInDialog()
 
         await this.clickChipEdit(bladeId)
 
@@ -79,7 +80,7 @@ export default class Run extends AbstractSingleRun {
             'Showing duplicate Chuck Roast! Check Blade!'
         )
 
-        await this.clickDoneInDialog()
+        await this.clickSaveInDialog()
 
         await this.clickChipEdit(eyeRoastId)
 
@@ -94,7 +95,7 @@ export default class Run extends AbstractSingleRun {
             'Select one...'
         )
 
-        await this.clickDoneInDialog()
+        await this.clickSaveInDialog()
 
         await this.assertRetainedFirst2BlockedBy(
             chuckRoastId,
@@ -143,6 +144,6 @@ export default class Run extends AbstractSingleRun {
             'Did not unblock the other way! Check Chuck Roast!'
         )
 
-        await this.clickDoneInDialog()
+        await this.clickSaveInDialog()
     }
 }
