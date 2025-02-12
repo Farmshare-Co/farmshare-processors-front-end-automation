@@ -359,6 +359,18 @@ export abstract class AbstractSingleRun implements SingleRun {
         await link[idx].click()
     }
 
+    protected async assertInputValueEquals(
+        statusSeletor: string,
+        status: string
+    ) {
+        const value = await this.runner.getValue(statusSeletor)
+        assert.isEqual(
+            value,
+            status,
+            `${statusSeletor} was not updated set to the expected value`
+        )
+    }
+
     protected async getFirstCutsheetsNameInCutsheetDetails() {
         return await this.runner.getInnerText(
             '.cutsheet-catalogue .cutsheet-name'
