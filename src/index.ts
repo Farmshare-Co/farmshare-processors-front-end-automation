@@ -1,3 +1,4 @@
+import { assert, generateId } from '@sprucelabs/test-utils'
 import Runner from './Runner/Runner'
 import { AbstractSingleRun } from './Runner/SingleRun'
 
@@ -10,24 +11,55 @@ void (async () => {
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
         await this.login()
-        await this.deleteAllJobsInProgress()
-        const { id } = await this.addJobAsProcessor()
 
-        await this.clickNav('processor')
+        await this.addJobAsProcessor()
+        await this.clickOnFirstAnimalHeadInJobDetails()
+        await this.clickEditOnFirstCutsheetOnAnimalDetails()
 
-        const status = 'Dropped_Off'
+        const cutsheetName = await this.getFirstCutsheetsNameInCutsheetDetails()
 
-        const statusSeletor = `[data-id="${id}"] select`
-        await this.selectValue(statusSeletor, status)
+        await this.clickAddFirstCutsheetToCartOnCutsheetDetails()
 
-        await this.setInputValue('animalHeads.0.liveWeight', '500')
+        await this.clickCheckboxesForAllSplitsInCutsheetDetailsDialog()
 
         await this.clickSaveInDialog()
 
-        await this.assertInputValueEquals(statusSeletor, status)
+        const notes = generateId()
 
-        await this.runner.refresh()
+        await this.fillOutNotesOnFirstHeadOnCutsheetDetails(notes)
 
-        await this.assertInputValueEquals(statusSeletor, status)
+        await this.clickSubmit()
+
+        await this.clickOnFirstAnimalHeadInJobDetails()
+
+        const actualCutsheetName =
+            await this.getFirstCutsheetNameOnAnimalDetails()
+
+        assert.isEqual(
+            cutsheetName,
+            actualCutsheetName,
+            'Cutsheet name did not save'
+        )
+
+        const actualNotes = await this.getFirstCutsheetNotesOnAnimalDetails()
+
+        assert.isEqual(notes, actualNotes, 'Notes did not save')
+    }
+
+    private async getFirstCutsheetNotesOnAnimalDetails() {
+        return await this.runner.getInnerText(
+            '.animal-head-cutsheet-information .cutsheet-notes td:last-of-type'
+        )
+    }
+
+    private async fillOutNotesOnFirstHeadOnCutsheetDetails(notes: string) {
+        await this.runner.type(
+            '[name="cutsheetRequests.[0].cutsheets.[0].notes"]',
+            notes
+        )
+    }
+
+    private async clickOnFirstAnimalHeadInJobDetails() {
+        await this.clickAnimalHeadInJobDetails(0)
     }
 }

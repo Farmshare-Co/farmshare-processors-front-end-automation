@@ -16,9 +16,14 @@ void (async () => {
         const file = diskUtil.resolveFile(cwd, match)
         const { default: Run } = require(file as string)
         log.info(`Running ${match}`)
-        const single = new Run(runner)
-        await single.run()
-        log.info(`Finished ${match}`)
+        try {
+            const single = new Run(runner)
+            await single.run()
+            log.info(`Finished ${match}`)
+        } catch (err) {
+            log.error(`Failed to run ${match}`)
+            throw err
+        }
     }
 
     log.info('All tests passed!')

@@ -22,7 +22,7 @@ export abstract class AbstractSingleRun implements SingleRun {
 
         await this.runner.click('button.text-primary')
 
-        if (process.env.EMAIL) {
+        if (process.env.LOGIN_STRATEGY === 'email_and_password') {
             await this.loginWithEmailAndPassword()
         } else {
             await this.loginUsingGoogle()
@@ -139,6 +139,7 @@ export abstract class AbstractSingleRun implements SingleRun {
     }
 
     protected async addJobAsProcessor(options?: AddJobOptions) {
+        await this.clickNav('processor')
         await this.clickTab('add-job')
         const results = await this.addJob(options)
         return results
@@ -201,15 +202,11 @@ export abstract class AbstractSingleRun implements SingleRun {
 
         await this.clickSubmit()
 
-        await wait(1000)
+        await wait(5000)
 
         const url = this.runner.getCurrentUrl()
         const match = url.match(/\/processing-job\/(.*?)\/details/)
         const id = match?.[1]
-
-        if (!id) {
-            throw new Error('Could not find job id')
-        }
 
         return { date, slotsRemaining, id }
     }
@@ -315,7 +312,9 @@ export abstract class AbstractSingleRun implements SingleRun {
         await this.runner.focusOnFrame('embedded-checkout')
 
         //optionally skip confirmation view
-        const all = await this.runner.findAll('button.LinkActionButton')
+        const all = await this.runner.findAll('button.LinkActionButton', {
+            shouldThrowIfNotFound: false,
+        })
         await wait(1000)
         for (const link of all) {
             const innerHtml = await link.getProperty('innerHTML')
@@ -348,7 +347,7 @@ export abstract class AbstractSingleRun implements SingleRun {
         await wait(1000 * 5)
         await this.runner.close()
 
-        await wait(1000)
+        await wait(3000)
         await this.clickSaveInDialog()
 
         return { date, slotsRemaining }

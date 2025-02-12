@@ -59,8 +59,14 @@ export default class Runner {
         this.browser = browser
     }
 
-    public async findAll(selector: string) {
-        await this.waitForSelector(selector)
+    public async findAll(
+        selector: string,
+        options?: { shouldThrowIfNotFound?: boolean }
+    ) {
+        const { shouldThrowIfNotFound = true } = options ?? {}
+        if (shouldThrowIfNotFound) {
+            await this.waitForSelector(selector)
+        }
         return await this.page.$$(selector)
     }
 
@@ -126,6 +132,8 @@ export default class Runner {
 
     public async click(selector: string) {
         await this.waitForSelector(selector)
+
+        this.log.info(`Clicking "${selector}"`)
         await this.page.click(selector)
         await wait(1000)
     }

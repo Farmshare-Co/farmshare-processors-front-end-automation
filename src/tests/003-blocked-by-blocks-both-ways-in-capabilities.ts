@@ -15,6 +15,8 @@ export default class Run extends AbstractSingleRun {
         await this.clickNav('processor')
         await this.clickTab('capabilities')
 
+        await this.runner.click('button.beef-exempt')
+
         let chuckRoastId = ID_CHUCK_ROAST_EXEMPT
         let armRoastId = ID_ARM_ROAST_EXEMPT
         let bladeId = ID_BLADE_EXEMPT
