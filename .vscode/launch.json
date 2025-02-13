@@ -4,7 +4,7 @@
 		{
 			"type": "node",
 			"request": "launch",
-			"name": "go",
+			"name": "one",
 			"runtimeExecutable": "yarn",
 			"runtimeArgs": [
 				"run",

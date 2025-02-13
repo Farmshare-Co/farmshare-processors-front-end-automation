@@ -276,6 +276,7 @@ export abstract class AbstractSingleRun implements SingleRun {
 
     protected async clickNav(name: string) {
         await this.runner.click(`.${name}.nav-link`)
+        await this.runner.waitForSelector('#navbar')
     }
 
     protected async assertExists(select: string) {
@@ -447,6 +448,38 @@ export abstract class AbstractSingleRun implements SingleRun {
 
     protected async getDateCell(dropoffDate: string) {
         return await this.runner.getInnerText(`[data-date="${dropoffDate}"]`)
+    }
+
+    protected async declineAllJobsNeedingApproval() {
+        const jobIds: string[] = []
+
+        do {
+            const jobId = await this.runner.getProp(
+                '.pending-approvals [data-id]',
+                'data-id',
+                {
+                    shouldThrowIfNotFound: false,
+                }
+            )
+
+            if (!jobId) {
+                break
+            }
+
+            jobIds.push(jobId)
+
+            const reviewButton = await this.runner.get(
+                `.pending-approvals [data-id="${jobId}"] .btn-review`
+            )
+
+            if (!reviewButton) {
+                break
+            }
+
+            await reviewButton.click({})
+            await this.runner.click('.modal-dialog .btn-danger')
+        } while (true)
+        return jobIds
     }
 }
 

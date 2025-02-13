@@ -1,16 +1,8 @@
 import { assert } from '@sprucelabs/test-utils'
-import Runner from './Runner/Runner'
-import { AbstractSingleRun } from './Runner/SingleRun'
-
-void (async () => {
-    const runner = await Runner.Runner()
-    const run = new Run(runner)
-    await run.run()
-})()
+import { AbstractSingleRun } from '../Runner/SingleRun'
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
-        await this.login()
         await this.setDepositAndVerify('100')
         await this.deleteAllJobsInProgress()
         await this.addJobAsProducer()
@@ -25,38 +17,6 @@ export default class Run extends AbstractSingleRun {
         await this.runner.refresh()
         await this.assertAllJobsNotInNeedsApproval(jobIds)
         await this.assertAllJobsNotInNeedsAttention(jobIds)
-    }
-
-    private async declineAllJobsNeedingApproval() {
-        const jobIds: string[] = []
-
-        do {
-            const jobId = await this.runner.getProp(
-                '.pending-approvals [data-id]',
-                'data-id',
-                {
-                    shouldThrowIfNotFound: false,
-                }
-            )
-
-            if (!jobId) {
-                break
-            }
-
-            jobIds.push(jobId)
-
-            const reviewButton = await this.runner.get(
-                `.pending-approvals [data-id="${jobId}"] .btn-review`
-            )
-
-            if (!reviewButton) {
-                break
-            }
-
-            await reviewButton.click({})
-            await this.runner.click('.modal-dialog .btn-danger')
-        } while (true)
-        return jobIds
     }
 
     private async assertAllJobsNotInNeedsAttention(jobIds: string[]) {

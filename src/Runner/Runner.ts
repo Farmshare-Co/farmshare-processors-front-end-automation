@@ -59,14 +59,8 @@ export default class Runner {
         this.browser = browser
     }
 
-    public async findAll(
-        selector: string,
-        options?: { shouldThrowIfNotFound?: boolean }
-    ) {
-        const { shouldThrowIfNotFound = true } = options ?? {}
-        if (shouldThrowIfNotFound) {
-            await this.waitForSelector(selector)
-        }
+    public async findAll(selector: string, options?: SelectOptions) {
+        await this.waitForSelector(selector, options)
         return await this.page.$$(selector)
     }
 
@@ -83,10 +77,7 @@ export default class Runner {
         await button.click()
     }
 
-    public async get(
-        selector: string,
-        options?: { shouldThrowIfNotFound?: boolean }
-    ) {
+    public async get(selector: string, options?: SelectOptions) {
         const { shouldThrowIfNotFound = true } = options ?? {}
 
         if (shouldThrowIfNotFound) {
@@ -138,7 +129,14 @@ export default class Runner {
         await wait(1000)
     }
 
-    public async waitForSelector(selector: string) {
+    public async waitForSelector(selector: string, options?: SelectOptions) {
+        const { shouldThrowIfNotFound = true } = options ?? {}
+
+        if (!shouldThrowIfNotFound) {
+            this.log.info(`Skipping check for selector "${selector}"`)
+            return null
+        }
+
         this.log.info(`Check ${Stats.checks++}: Selector "${selector}"`)
         return await this.page.waitForSelector(selector)
     }
@@ -163,20 +161,34 @@ export default class Runner {
         return !disabled
     }
 
-    public async getProp(selector: string, propName: string) {
-        await this.waitForSelector(selector)
-        return await this.page.$eval(
-            selector,
-            //@ts-ignore
-            (el: HTMLInputElement, propName: string) => {
-                if (propName.startsWith('data')) {
-                    return el.getAttribute(propName)
-                }
+    public async getProp(
+        selector: string,
+        propName: string,
+        options?: SelectOptions
+    ) {
+        const { shouldThrowIfNotFound = true } = options ?? {}
+
+        await this.waitForSelector(selector, options)
+
+        try {
+            return (await this.page.$eval(
+                selector,
                 //@ts-ignore
-                return el[propName]
-            },
-            propName
-        )
+                (el: HTMLInputElement, propName: string) => {
+                    if (propName.startsWith('data')) {
+                        return el.getAttribute(propName)
+                    }
+                    //@ts-ignore
+                    return el[propName]
+                },
+                propName
+            )) as string
+        } catch (err) {
+            if (!shouldThrowIfNotFound) {
+                return null
+            }
+            throw err
+        }
     }
 
     public async type(selector: string, text: string) {
@@ -276,3 +288,7 @@ interface RunnerHistoryItem {
 }
 
 type PageOrFrame = Page | Frame
+
+interface SelectOptions {
+    shouldThrowIfNotFound?: boolean
+}
