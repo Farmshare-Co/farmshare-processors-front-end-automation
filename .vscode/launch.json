@@ -8,7 +8,7 @@
 			"runtimeExecutable": "yarn",
 			"runtimeArgs": [
 				"run",
-				"go"
+				"one"
 			],
 			"cwd": "${workspaceFolder}",
 			"console": "integratedTerminal",

@@ -12,7 +12,7 @@
     "clean.dependencies": "rm -rf node_modules/ package-lock.json yarn.lock",
     "clean": "yarn run clean.build",
     "fix.lint": "eslint --fix --cache '**/*.ts'",
-    "go": "node build/index.js",
+    "one": "node build/index.js",
     "all": "node build/all.js",
     "lint.tsc": "tsc -p . --noEmit",
     "lint": "eslint --cache '**/*.ts'",
