@@ -116,6 +116,15 @@ export default class Runner {
         const node = await this.get(selector)
         return await node.evaluate((node) => node.textContent)
     }
+    public async getInnerTextAll(selector: string) {
+        const node = await this.findAll(selector)
+        const text: string[] = []
+        for (const n of node) {
+            const textContent = await n.evaluate((node) => node.textContent)
+            text.push(textContent!)
+        }
+        return text
+    }
 
     public async goto(url: string) {
         await this.page.goto(url)

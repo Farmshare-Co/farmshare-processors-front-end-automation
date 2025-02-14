@@ -204,11 +204,16 @@ export abstract class AbstractSingleRun implements SingleRun {
 
         await wait(5000)
 
-        const url = this.runner.getCurrentUrl()
-        const match = url.match(/\/processing-job\/(.*?)\/details/)
-        const id = match?.[1]
+        const id = this.parseJobIdFromUrl()
 
         return { date, slotsRemaining, id }
+    }
+
+    private parseJobIdFromUrl() {
+        const url = this.runner.getCurrentUrl()
+        const match = url.match(/\/processing-job|scheduling\/(.*?)\/details/)
+        const id = match?.[1]
+        return id
     }
 
     private async addAnimalHeadWhenAddingJob(options?: {
@@ -221,10 +226,12 @@ export abstract class AbstractSingleRun implements SingleRun {
 
         await this.runner.click('.add-animal-btn')
 
-        await this.selectValue(
-            `scheduledHeads[${idx}].inspectionLevel`,
-            inspection ?? 'exempt'
-        )
+        if (inspection) {
+            await this.selectValue(
+                `scheduledHeads[${idx}].inspectionLevel`,
+                inspection
+            )
+        }
 
         await this.selectValue(
             `scheduledHeads[${idx}].splitType`,
@@ -283,19 +290,14 @@ export abstract class AbstractSingleRun implements SingleRun {
         await this.runner.waitForSelector(select)
     }
 
-    protected async addJobAsProducer(options?: {
-        firstName?: string
-        lastName?: string
-        zip?: string
-        phone?: string
-        shouldCheckout?: boolean
-    }) {
+    protected async addJobAsProducer(options?: AddJobAsProducerOptions) {
         const {
             firstName = process.env.CUSTOMER_1_FIRST!,
             lastName = process.env.CUSTOMER_1_LAST!,
             zip = process.env.CUSTOMER_1_ZIP!,
             phone = process.env.CUSTOMER_1_PHONE!,
             shouldCheckout = true,
+            hasDeposit = true,
         } = options || {}
 
         await this.runner.openNewPage()
@@ -303,12 +305,33 @@ export abstract class AbstractSingleRun implements SingleRun {
         await this.runner.redirect('/scheduling')
         await this.runner.click('.col button')
 
-        const { date, slotsRemaining } = await this.addJob()
+        const { date, slotsRemaining } = await this.addJob(options)
 
         if (!shouldCheckout) {
             return { date, slotsRemaining }
         }
 
+        if (hasDeposit) {
+            await this.enterDepositPaymentDetails({
+                firstName,
+                lastName,
+                zip,
+                phone,
+            })
+        }
+
+        const id = this.parseJobIdFromUrl()
+
+        return { date, slotsRemaining, id }
+    }
+
+    private async enterDepositPaymentDetails(options: {
+        firstName: string
+        lastName: string
+        zip: string
+        phone: string
+    }) {
+        const { firstName, lastName, zip, phone } = options
         await this.assertExists('[name="embedded-checkout"]')
         await this.runner.focusOnFrame('embedded-checkout')
 
@@ -350,8 +373,6 @@ export abstract class AbstractSingleRun implements SingleRun {
 
         await wait(3000)
         await this.clickSaveInDialog()
-
-        return { date, slotsRemaining }
     }
 
     protected async clickAnimalHeadInJobDetails(idx = 0) {
@@ -496,3 +517,9 @@ interface AddJobOptions {
 }
 
 export type CalendarEventStage = 'Drop-off' | 'Harvest' | 'Cut'
+
+export type AddJobAsProducerOptions = AddJobOptions & {
+    zip?: string
+    shouldCheckout?: boolean
+    hasDeposit?: boolean
+}
