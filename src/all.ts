@@ -26,5 +26,7 @@ void (async () => {
         }
     }
 
+    await runner.shutdown()
+
     log.info('All tests passed!')
 })()
