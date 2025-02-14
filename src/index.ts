@@ -17,46 +17,21 @@ export default class Run extends AbstractSingleRun {
         await this.runner.close()
 
         await this.clickNav('processor')
+        await this.runner.refresh()
 
         const jobIds = await this.declineAllJobsNeedingApproval()
+
+        assert.isAbove(
+            jobIds.length,
+            0,
+            `I couldn't find any jobs needing approval to decline!`
+        )
 
         await this.assertAllJobsNotInNeedsApproval(jobIds)
         await this.assertAllJobsNotInNeedsAttention(jobIds)
         await this.runner.refresh()
         await this.assertAllJobsNotInNeedsApproval(jobIds)
         await this.assertAllJobsNotInNeedsAttention(jobIds)
-    }
-
-    private async declineAllJobsNeedingApproval() {
-        const jobIds: string[] = []
-
-        do {
-            const jobId = await this.runner.getProp(
-                '.pending-approvals [data-id]',
-                'data-id',
-                {
-                    shouldThrowIfNotFound: false,
-                }
-            )
-
-            if (!jobId) {
-                break
-            }
-
-            jobIds.push(jobId)
-
-            const reviewButton = await this.runner.get(
-                `.pending-approvals [data-id="${jobId}"] .btn-review`
-            )
-
-            if (!reviewButton) {
-                break
-            }
-
-            await reviewButton.click({})
-            await this.runner.click('.modal-dialog .btn-danger')
-        } while (true)
-        return jobIds
     }
 
     private async assertAllJobsNotInNeedsAttention(jobIds: string[]) {

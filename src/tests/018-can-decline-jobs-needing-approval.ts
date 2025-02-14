@@ -9,8 +9,15 @@ export default class Run extends AbstractSingleRun {
         await this.runner.close()
 
         await this.clickNav('processor')
+        await this.runner.refresh()
 
         const jobIds = await this.declineAllJobsNeedingApproval()
+
+        assert.isAbove(
+            jobIds.length,
+            0,
+            `I couldn't find any jobs needing approval to decline!`
+        )
 
         await this.assertAllJobsNotInNeedsApproval(jobIds)
         await this.assertAllJobsNotInNeedsAttention(jobIds)
