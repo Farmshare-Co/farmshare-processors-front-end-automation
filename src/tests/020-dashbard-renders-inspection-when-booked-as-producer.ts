@@ -5,13 +5,16 @@ export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
         await this.deleteAllJobsInProgress()
 
-        const inspections = ['Exempt', 'USDA', '']
+        const inspections = ['Exempt', 'USDA', false]
 
         for (const inspection of inspections) {
             await this.declineAllJobsNeedingApproval()
 
             const { id } = await this.addJobAsProducer({
-                inspection: inspection.toLowerCase(),
+                inspection:
+                    typeof inspection === 'string'
+                        ? inspection.toLowerCase()
+                        : false,
                 hasDeposit: false,
             })
 

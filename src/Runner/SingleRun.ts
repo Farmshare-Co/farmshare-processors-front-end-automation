@@ -211,13 +211,15 @@ export abstract class AbstractSingleRun implements SingleRun {
 
     private parseJobIdFromUrl() {
         const url = this.runner.getCurrentUrl()
-        const match = url.match(/\/processing-job|scheduling\/(.*?)\/details/)
+        const match = url.match(
+            /\/(?:processing-job|scheduling)\/([^/]+)\/details/
+        )
         const id = match?.[1]
         return id
     }
 
     private async addAnimalHeadWhenAddingJob(options?: {
-        inspection: string | undefined
+        inspection: string | undefined | false
         splitType: string | undefined
         sex: string | undefined
         idx?: number
@@ -226,10 +228,10 @@ export abstract class AbstractSingleRun implements SingleRun {
 
         await this.runner.click('.add-animal-btn')
 
-        if (inspection) {
+        if (inspection !== false) {
             await this.selectValue(
                 `scheduledHeads[${idx}].inspectionLevel`,
-                inspection
+                inspection ?? 'exempt'
             )
         }
 
@@ -283,6 +285,10 @@ export abstract class AbstractSingleRun implements SingleRun {
 
     protected async clickNav(name: string) {
         await this.runner.click(`.${name}.nav-link`)
+        await this.waitForPageLoad()
+    }
+
+    protected async waitForPageLoad() {
         await this.runner.waitForSelector('#navbar')
     }
 
@@ -510,7 +516,7 @@ interface AddJobOptions {
     phone?: string
     email?: string
     farmName?: string
-    inspection?: string
+    inspection?: string | false
     splitType?: string
     sex?: string
     totalHeads?: number

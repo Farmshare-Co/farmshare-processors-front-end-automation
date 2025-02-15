@@ -1,5 +1,6 @@
 import { assert } from '@sprucelabs/test-utils'
 import { AbstractSingleRun } from '../Runner/SingleRun'
+import wait from '../Runner/wait'
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
@@ -10,6 +11,9 @@ export default class Run extends AbstractSingleRun {
 
         await this.clickNav('processor')
         await this.runner.refresh()
+        await this.waitForPageLoad()
+
+        await wait(1000)
 
         const jobIds = await this.declineAllJobsNeedingApproval()
 

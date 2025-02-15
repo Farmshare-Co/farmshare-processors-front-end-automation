@@ -1,4 +1,5 @@
 import { AbstractSingleRun } from '../Runner/SingleRun'
+import wait from '../Runner/wait'
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
@@ -8,6 +9,8 @@ export default class Run extends AbstractSingleRun {
         const { id } = await this.addJobAsProcessor()
 
         await this.clickNav('processor')
+
+        await wait(1000)
 
         const status = 'Dropped_Off'
 
