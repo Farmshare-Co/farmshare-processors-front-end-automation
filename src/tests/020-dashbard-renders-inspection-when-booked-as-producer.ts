@@ -5,6 +5,9 @@ export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
         await this.deleteAllJobsInProgress()
 
+        await this.setDepositAndVerify('0')
+        await this.clickNav('processor')
+
         const inspections = ['Exempt', 'USDA', false]
 
         for (const inspection of inspections) {
@@ -21,7 +24,7 @@ export default class Run extends AbstractSingleRun {
             assert.isTruthy(id, 'Failed get job id')
 
             await this.runner.close()
-            await this.runner.refresh()
+            await this.refreshAndWaitForLoad()
 
             await this.clickNav('processor')
 

@@ -508,6 +508,11 @@ export abstract class AbstractSingleRun implements SingleRun {
         } while (true)
         return jobIds
     }
+
+    protected async refreshAndWaitForLoad() {
+        await this.runner.refresh()
+        await this.waitForPageLoad()
+    }
 }
 
 interface AddJobOptions {

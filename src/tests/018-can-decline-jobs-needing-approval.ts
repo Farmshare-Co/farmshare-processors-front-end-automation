@@ -10,10 +10,9 @@ export default class Run extends AbstractSingleRun {
         await this.runner.close()
 
         await this.clickNav('processor')
-        await this.runner.refresh()
-        await this.waitForPageLoad()
+        await this.refreshAndWaitForLoad()
 
-        await wait(1000)
+        await wait(5000)
 
         const jobIds = await this.declineAllJobsNeedingApproval()
 
@@ -25,7 +24,7 @@ export default class Run extends AbstractSingleRun {
 
         await this.assertAllJobsNotInNeedsApproval(jobIds)
         await this.assertAllJobsNotInNeedsAttention(jobIds)
-        await this.runner.refresh()
+        await this.refreshAndWaitForLoad()
         await this.assertAllJobsNotInNeedsApproval(jobIds)
         await this.assertAllJobsNotInNeedsAttention(jobIds)
     }
