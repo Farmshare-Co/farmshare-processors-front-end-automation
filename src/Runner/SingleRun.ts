@@ -280,6 +280,7 @@ export abstract class AbstractSingleRun implements SingleRun {
             await this.selectValue('reason', 'Other')
             await this.setInputValue('details', generateId())
             await this.clickSaveInDialog()
+            await wait(1000)
         } while (true)
     }
 
@@ -495,6 +496,8 @@ export abstract class AbstractSingleRun implements SingleRun {
 
             jobIds.push(jobId)
 
+            await wait(1000)
+
             const reviewButton = await this.runner.get(
                 `.pending-approvals [data-id="${jobId}"] .btn-review`
             )
@@ -503,8 +506,14 @@ export abstract class AbstractSingleRun implements SingleRun {
                 break
             }
 
-            await reviewButton.click({})
-            await this.runner.click('.modal-dialog .btn-danger')
+            try {
+                await reviewButton.click({})
+                await this.runner.click('.modal-dialog .btn-danger')
+                await wait(1000)
+            } catch (err) {
+                debugger
+                throw err
+            }
         } while (true)
         return jobIds
     }

@@ -147,7 +147,13 @@ export default class Runner {
         }
 
         this.log.info(`Check ${Stats.checks++}: Selector "${selector}"`)
-        return await this.page.waitForSelector(selector)
+
+        try {
+            return await this.page.waitForSelector(selector)
+        } catch (err) {
+            debugger
+            throw err
+        }
     }
 
     public async select(selector: string, value: string) {
