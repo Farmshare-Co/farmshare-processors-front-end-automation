@@ -15,7 +15,7 @@ export abstract class AbstractSingleRun implements SingleRun {
 
     public abstract run(): Promise<void>
 
-    protected async login() {
+    public async login() {
         this.log.info('Logging in...')
 
         await this.runner.goto(this.runner.domain)
@@ -428,8 +428,12 @@ export abstract class AbstractSingleRun implements SingleRun {
         )
     }
 
-    protected addDays(date: string, days: number) {
-        const dateParts = date.split('-').map((part) => parseInt(part))
+    protected addDays(date: string | Date, days: number) {
+        //dateAsString needs to be in the format of 'YYYY-MM-DD'
+        let dateAsString =
+            date instanceof Date ? date.toISOString().split('T')[0] : date
+
+        const dateParts = dateAsString.split('-').map((part) => parseInt(part))
         const d = new Date(dateParts[0], dateParts[1] - 1, dateParts[2])
 
         d.setDate(d.getDate() + days)
@@ -439,7 +443,7 @@ export abstract class AbstractSingleRun implements SingleRun {
         const zeroPadded = datePartsNew.map((part) => part.padStart(2, '0'))
         const inputFormat = `${zeroPadded[1]}${zeroPadded[2]}${zeroPadded[0]}`
         const isoFormat = `${zeroPadded[0]}-${zeroPadded[1]}-${zeroPadded[2]}`
-        return { inputFormat, isoFormat }
+        return { inputFormat, isoFormat, yyyMmDd: newDate }
     }
 
     protected async assertDayInCalendarIncludesEventAtStage(
@@ -521,6 +525,107 @@ export abstract class AbstractSingleRun implements SingleRun {
     protected async refreshAndWaitForLoad() {
         await this.runner.refresh()
         await this.waitForPageLoad()
+    }
+
+    protected async executeBlockedByRoutine(
+        cut1Id: string,
+        cut2Id: string,
+        cut3Id: string,
+        cut4Id: string
+    ) {
+        await this.clickChipEdit(cut1Id)
+
+        await this.setBlockedByValue(0, cut2Id)
+        await this.setBlockedByValue(1, cut3Id)
+        await this.setBlockedByValue(2, cut4Id)
+
+        await this.clickSaveInDialog()
+
+        await this.clickChipEdit(cut2Id)
+
+        await this.assertValueEquals(
+            'select[name="selectedCutBlockers.0"]',
+            cut1Id,
+            'Did not block the other way! Check Arm Roast to make sure it has selected Chuck Roast!'
+        )
+
+        await this.clickSaveInDialog()
+
+        await this.clickChipEdit(cut3Id)
+
+        await this.assertValueEquals(
+            'select[name="selectedCutBlockers.0"]',
+            cut1Id,
+            'Did not block the other way! Check Blade!'
+        )
+
+        await this.assertValueEquals(
+            'select[name="selectedCutBlockers.1"]',
+            'Select one...',
+            'Showing duplicate Chuck Roast! Check Blade!'
+        )
+
+        await this.clickSaveInDialog()
+
+        await this.clickChipEdit(cut4Id)
+
+        await this.assertValueEquals(
+            'select[name="selectedCutBlockers.0"]',
+            cut1Id,
+            'Did not block the other way! Check Eye Roast!'
+        )
+
+        await this.runner.select(
+            'select[name="selectedCutBlockers.0"]',
+            'Select one...'
+        )
+
+        await this.clickSaveInDialog()
+
+        await this.assertRetainedFirst2BlockedBy(cut1Id, cut2Id, cut3Id)
+
+        await this.runner.refresh()
+
+        await this.assertRetainedFirst2BlockedBy(cut1Id, cut2Id, cut3Id)
+    }
+
+    private async setBlockedByValue(idx: number, armRoastId: string) {
+        await this.runner.select(
+            `select[name="selectedCutBlockers.${idx}"]`,
+            armRoastId
+        )
+    }
+
+    private async assertRetainedFirst2BlockedBy(
+        chipId: string,
+        blockedBy1Id: string,
+        blockedBy2Id: string
+    ) {
+        await this.clickChipEdit(chipId)
+
+        await this.assertValueEquals(
+            'select[name="selectedCutBlockers.0"]',
+            blockedBy1Id,
+            'Did not retain block on Chuck Roast!'
+        )
+
+        await this.assertValueEquals(
+            'select[name="selectedCutBlockers.1"]',
+            blockedBy2Id,
+            'Did not retain block on Chuck Roast!'
+        )
+
+        await this.assertValueEquals(
+            'select[name="selectedCutBlockers.2"]',
+            'Select one...',
+            'Did not unblock the other way! Check Chuck Roast!'
+        )
+
+        await this.clickSaveInDialog()
+    }
+
+    protected async clickAddCutsheet() {
+        await this.runner.click('button.btn-add-cutsheet')
     }
 }
 

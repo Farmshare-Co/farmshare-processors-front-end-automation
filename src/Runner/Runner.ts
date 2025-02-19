@@ -151,7 +151,6 @@ export default class Runner {
         try {
             return await this.page.waitForSelector(selector)
         } catch (err) {
-            debugger
             throw err
         }
     }
@@ -271,29 +270,24 @@ export default class Runner {
         sourceSelector: string,
         destinationSelector: string
     ) {
-        const source = await this.get(sourceSelector)
-        const destination = await this.get(destinationSelector)
-        const sourceBox = await source!.boundingBox()
-        const destinationBox = await destination?.boundingBox()
-
         const page = this.page as Page
 
-        await page.mouse.move(
-            sourceBox!.x + sourceBox!.width / 2,
-            sourceBox!.y + sourceBox!.height / 2
-        )
+        await this.hoverOver(sourceSelector)
 
         await page.mouse.down()
 
-        await page.mouse.move(
-            destinationBox!.x + destinationBox!.width / 2,
-            destinationBox!.y + destinationBox!.height / 2,
-            {
-                steps: 100,
-            }
-        )
+        await this.hoverOver(destinationSelector)
 
         await page.mouse.up()
+    }
+
+    public async hoverOver(sourceSelector: string) {
+        const source = await this.get(sourceSelector)
+        const sourceBox = await source!.boundingBox()
+        await (this.page as Page).mouse.move(
+            sourceBox!.x + sourceBox!.width / 2,
+            sourceBox!.y + sourceBox!.height / 2
+        )
     }
 }
 

@@ -1,24 +1,15 @@
 import { assert } from '@sprucelabs/test-utils'
-import Runner from './Runner/Runner'
-import { AbstractSingleRun } from './Runner/SingleRun'
-
-void (async () => {
-    const runner = await Runner.Runner()
-    const run = new Run(runner)
-    await run.login()
-    await run.run()
-})()
+import { AbstractSingleRun } from '../Runner/SingleRun'
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
         await this.deleteAllJobsInProgress()
-        const { date } = await this.addJobAsProcessor()
-
-        await this.clickNav('processor')
         await this.clickTab('calendar')
 
-        await this.runner.hoverOver(`[data-date="${date}"]`)
-        await this.runner.click(`[data-date="${date}"] .cell-agenda-link`)
+        const today = new Date()
+        const { isoFormat } = this.addDays(today, 1)
+        await this.runner.hoverOver(`[data-date="${isoFormat}"]`)
+        await this.runner.click(`[data-date="${isoFormat}"] .cell-agenda-link`)
 
         await this.runner.click('.offcanvas-body .sticky-bottom button')
 
@@ -26,7 +17,7 @@ export default class Run extends AbstractSingleRun {
 
         assert.isEqual(
             value,
-            date,
+            isoFormat,
             'Did not set correct date scheduled when adding job from calendar agenda view'
         )
     }

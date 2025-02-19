@@ -35,8 +35,4 @@ export default class Run extends AbstractSingleRun {
 
         await this.clickCloseDialog()
     }
-
-    private async clickAddCutsheet() {
-        await this.runner.click('button.btn-add-cutsheet')
-    }
 }
