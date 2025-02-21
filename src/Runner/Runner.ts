@@ -4,12 +4,14 @@ import { assert } from '@sprucelabs/test-utils'
 import env from 'dotenv'
 import puppeteer, { Browser, Frame, Page } from 'puppeteer'
 import Stats from '../Stats'
+import { applyLogPrefixToMethods } from './applyLogPrefixToMethods'
 import wait from './wait'
 env.config()
 
 export default class Runner {
     public domain: string
-    private log = buildLog('Runner')
+    private originalLog = buildLog('Runner')
+    private log = this.originalLog
     private history: RunnerHistoryItem[] = []
 
     protected constructor(
@@ -17,6 +19,11 @@ export default class Runner {
         protected browser: Browser
     ) {
         this.domain = process.env.DOMAIN ?? 'https://partners-dev.farmshare.co'
+        applyLogPrefixToMethods(this)
+    }
+
+    public setLogPrefix(prefix: string) {
+        this.log = this.originalLog.buildLog(prefix)
     }
 
     public static async Runner() {

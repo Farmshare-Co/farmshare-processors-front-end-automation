@@ -2,6 +2,7 @@ import { buildLog } from '@sprucelabs/spruce-skill-utils'
 import { assert, generateId } from '@sprucelabs/test-utils'
 import { SingleRun } from '../automation.types'
 import Stats from '../Stats'
+import { applyLogPrefixToMethods } from './applyLogPrefixToMethods'
 import Runner from './Runner'
 import wait from './wait'
 
@@ -9,8 +10,13 @@ export abstract class AbstractSingleRun implements SingleRun {
     protected runner: Runner
     protected log = buildLog('SingleRun')
 
-    public constructor(runner: Runner) {
+    public constructor(runner: Runner, logPrefix?: string) {
         this.runner = runner
+        if (logPrefix) {
+            this.log = this.log.buildLog(logPrefix)
+        }
+
+        applyLogPrefixToMethods(this)
     }
 
     public abstract run(): Promise<void>
@@ -383,6 +389,7 @@ export abstract class AbstractSingleRun implements SingleRun {
     }
 
     protected async clickAnimalHeadInJobDetails(idx = 0) {
+        await this.clickTabOnJobDetailsPage('heads')
         const link = await this.runner.findAll('.animal-heads-list a')
         await link[idx].click()
     }
@@ -397,6 +404,10 @@ export abstract class AbstractSingleRun implements SingleRun {
             status,
             `${statusSeletor} was not updated set to the expected value`
         )
+    }
+
+    protected async clickTabOnJobDetailsPage(tab: string) {
+        await this.runner.click(`[data-rr-ui-event-key="${tab}"]`)
     }
 
     protected async getFirstCutsheetsNameInCutsheetDetails() {

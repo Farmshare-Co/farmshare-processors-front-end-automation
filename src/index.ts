@@ -1,4 +1,4 @@
-import { assert } from '@sprucelabs/test-utils'
+import { assert, generateId } from '@sprucelabs/test-utils'
 import Runner from './Runner/Runner'
 import { AbstractSingleRun } from './Runner/SingleRun'
 
@@ -7,27 +7,60 @@ void (async () => {
     const run = new Run(runner)
     await run.login()
     await run.run()
+    await runner.shutdown()
+    console.log('Single tests passed!')
 })()
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
-        await this.deleteAllJobsInProgress()
-        const { date } = await this.addJobAsProcessor()
+        await this.addJobAsProcessor()
 
-        await this.clickNav('processor')
-        await this.clickTab('calendar')
+        await this.clickOnFirstAnimalHeadInJobDetails()
+        await this.clickEditOnFirstCutsheetOnAnimalDetails()
 
-        await this.runner.hoverOver(`[data-date="${date}"]`)
-        await this.runner.click(`[data-date="${date}"] .cell-agenda-link`)
+        const cutsheetName = await this.getFirstCutsheetsNameInCutsheetDetails()
 
-        await this.runner.click('.offcanvas-body .sticky-bottom button')
+        await this.clickAddFirstCutsheetToCartOnCutsheetDetails()
+        await this.clickCheckboxesForAllSplitsInCutsheetDetailsDialog()
 
-        const value = await this.runner.getValue('[name="dates.start"]')
+        await this.clickSaveInDialog()
+
+        const notes = generateId()
+
+        await this.fillOutNotesOnFirstHeadOnCutsheetDetails(notes)
+
+        await this.clickSubmit()
+
+        await this.clickOnFirstAnimalHeadInJobDetails()
+
+        const actualCutsheetName =
+            await this.getFirstCutsheetNameOnAnimalDetails()
 
         assert.isEqual(
-            value,
-            date,
-            'Did not set correct date scheduled when adding job from calendar agenda view'
+            cutsheetName,
+            actualCutsheetName,
+            'Cutsheet name did not save'
         )
+
+        const actualNotes = await this.getFirstCutsheetNotesOnAnimalDetails()
+
+        assert.isEqual(notes, actualNotes, 'Notes did not save')
+    }
+
+    private async getFirstCutsheetNotesOnAnimalDetails() {
+        return await this.runner.getInnerText(
+            '.animal-head-cutsheet-information .cutsheet-notes td:last-of-type'
+        )
+    }
+
+    private async fillOutNotesOnFirstHeadOnCutsheetDetails(notes: string) {
+        await this.runner.type(
+            '[name="cutsheetRequests.[0].cutsheets.[0].notes"]',
+            notes
+        )
+    }
+
+    private async clickOnFirstAnimalHeadInJobDetails() {
+        await this.clickAnimalHeadInJobDetails(0)
     }
 }

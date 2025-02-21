@@ -11,7 +11,6 @@ export default class Run extends AbstractSingleRun {
         const cutsheetName = await this.getFirstCutsheetsNameInCutsheetDetails()
 
         await this.clickAddFirstCutsheetToCartOnCutsheetDetails()
-
         await this.clickCheckboxesForAllSplitsInCutsheetDetailsDialog()
 
         await this.clickSaveInDialog()

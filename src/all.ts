@@ -10,14 +10,18 @@ void (async () => {
         cwd,
     })
 
-    const log = buildLog('All')
+    let log = buildLog('All')
 
     for (const match of matches) {
+        const prefix = match.split('/').pop()?.split('.')[0] ?? 'Unknown'
+        log = log.buildLog(prefix)
+        runner.setLogPrefix(prefix)
+
         const file = diskUtil.resolveFile(cwd, match)
         const { default: Run } = require(file as string)
         log.info(`Running ${match}`)
         try {
-            const single = new Run(runner)
+            const single = new Run(runner, prefix)
             await single.run()
             log.info(`Finished ${match}`)
         } catch (err) {
