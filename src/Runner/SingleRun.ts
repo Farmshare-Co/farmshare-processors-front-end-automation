@@ -255,6 +255,7 @@ export abstract class AbstractSingleRun implements SingleRun {
     }
 
     protected async getSlotsRemainingOnAddJobTab() {
+        debugger
         const slots = await this.runner.getInnerHtml(
             '.dropoff-date-box span.slots'
         )
@@ -272,6 +273,7 @@ export abstract class AbstractSingleRun implements SingleRun {
 
     public async deleteAllJobsInProgress(): Promise<void> {
         await this.clickNav('processor')
+        await wait(1000)
         await this.clickTab('agenda')
         do {
             const button = await this.runner.get('.in-progress .btn-cancel', {
@@ -389,6 +391,7 @@ export abstract class AbstractSingleRun implements SingleRun {
     }
 
     protected async clickAnimalHeadInJobDetails(idx = 0) {
+        await wait(1000)
         await this.clickTabOnJobDetailsPage('heads')
         const link = await this.runner.findAll('.animal-heads-list a')
         await link[idx].click()

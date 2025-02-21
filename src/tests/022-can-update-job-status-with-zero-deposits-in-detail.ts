@@ -3,6 +3,7 @@ import { AbstractSingleRun } from '../Runner/SingleRun'
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
+        debugger
         await this.clickTab('add-job')
         await this.addJobAsProcessor()
         await this.runner.setInputValue('job-status', 'Killed')

@@ -49,6 +49,7 @@ export default class Runner {
         const browser = await puppeteer.launch({
             headless: false,
             userDataDir: diskUtil.createRandomTempDir(),
+            protocolTimeout: 60000,
         })
         const page = await browser.newPage()
         await page.setViewport({
