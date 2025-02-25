@@ -255,7 +255,6 @@ export abstract class AbstractSingleRun implements SingleRun {
     }
 
     protected async getSlotsRemainingOnAddJobTab() {
-        debugger
         const slots = await this.runner.getInnerHtml(
             '.dropoff-date-box span.slots'
         )
