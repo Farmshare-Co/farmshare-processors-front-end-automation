@@ -44,6 +44,22 @@ export abstract class AbstractSingleRun implements SingleRun {
         await this.clickSubmit()
         await this.setInputValue('password', process.env.PASSWORD!)
         await this.clickSubmit()
+
+        await this.optionallySelectFarmName()
+
+        await this.waitForPageLoad()
+    }
+
+    private async optionallySelectFarmName() {
+        await wait(1000)
+        const url = this.runner.getCurrentUrl()
+        if (url.includes('auth0')) {
+            const forms = await this.runner.findAll('form')
+            const secondForm = forms[1]
+            if (secondForm) {
+                await secondForm.click()
+            }
+        }
     }
 
     protected async setInputValue(name: string, value: string) {
@@ -317,7 +333,12 @@ export abstract class AbstractSingleRun implements SingleRun {
         await this.runner.openNewPage()
 
         await this.runner.redirect('/scheduling')
-        await this.runner.click('.col button')
+
+        const selector = process.env.SCHEDULING_FARM_SLUG
+            ? `.col .${process.env.SCHEDULING_FARM_SLUG} button`
+            : `.col button`
+
+        await this.runner.click(selector)
 
         const { date, slotsRemaining } = await this.addJob(options)
 

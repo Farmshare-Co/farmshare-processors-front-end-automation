@@ -16,6 +16,7 @@ export default class Run extends AbstractSingleRun {
         await this.addJobAsProcessor()
 
         await this.clickOnFirstAnimalHeadInJobDetails()
+
         await this.clickEditOnFirstCutsheetOnAnimalDetails()
 
         const cutsheetName = await this.getFirstCutsheetsNameInCutsheetDetails()
