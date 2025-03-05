@@ -290,6 +290,7 @@ export abstract class AbstractSingleRun implements SingleRun {
         await this.clickNav('processor')
         await wait(1000)
         await this.clickTab('agenda')
+        await wait(1000)
         do {
             const button = await this.runner.get('.in-progress .btn-cancel', {
                 shouldThrowIfNotFound: false,

@@ -272,6 +272,7 @@ export default class Runner {
 
         this.browser = last?.browser ?? this.browser
         this.page = last?.page ?? this.page
+        await wait(1000)
     }
 
     public async dragAndDrop(
