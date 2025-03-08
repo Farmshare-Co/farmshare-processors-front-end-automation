@@ -568,6 +568,7 @@ export abstract class AbstractSingleRun implements SingleRun {
     protected async refreshAndWaitForLoad() {
         await this.runner.refresh()
         await this.waitForPageLoad()
+        await wait(5000)
     }
 
     protected async executeBlockedByRoutine(

@@ -28,5 +28,7 @@ export default class Run extends AbstractSingleRun {
 
         await this.assertChipIsDisabled(ID_TOP_ROUND)
         await this.assertChipIsDisabled(ID_WHOLE_SHANK)
+
+        await this.clickCloseDialog()
     }
 }

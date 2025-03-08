@@ -3,17 +3,15 @@ import { AbstractSingleRun } from '../Runner/SingleRun'
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
-        await this.clickTab('processors')
-        await this.clickTab('add-job')
         await this.addJobAsProcessor()
-        await this.runner.setInputValue('job-status', 'Killed')
+        await this.runner.setInputValue('[name="job-status"]', 'Killed')
         await this.setInputValue('animalHeads.0.hangingWeight', '1000')
         await this.clickSaveInDialog()
         await this.clickSaveInDialog()
 
         await this.assertStatusEquals('Killed')
 
-        await this.runner.setInputValue('job-status', 'Aging')
+        await this.runner.setInputValue('[name="job-status"]', 'Aging')
 
         await this.assertStatusEquals('Aging')
     }

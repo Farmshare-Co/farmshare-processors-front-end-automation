@@ -1,3 +1,4 @@
+import { assert } from '@sprucelabs/test-utils'
 import Runner from './Runner/Runner'
 import { AbstractSingleRun } from './Runner/SingleRun'
 
@@ -11,22 +12,21 @@ void (async () => {
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
-        const dropoffDate = '2025-03-10'
-        const killDateCalendar = '2025-03-11'
-
-        await this.clickNav('processor')
-        await this.clickTab('calendar')
-
-        await this.runner.click('.btn-harvest')
-        await this.runner.click('.btn-cut')
-
-        await this.runner.dragAndDrop(
-            `[data-date="${dropoffDate}"] .fc-event-draggable`,
-            `[data-date="${killDateCalendar}"]`
-        )
-
-        debugger
-
+        await this.addJobAsProcessor()
+        await this.runner.setInputValue('[name="job-status"]', 'Killed')
+        await this.setInputValue('animalHeads.0.hangingWeight', '1000')
         await this.clickSaveInDialog()
+        await this.clickSaveInDialog()
+
+        await this.assertStatusEquals('Killed')
+
+        await this.runner.setInputValue('[name="job-status"]', 'Aging')
+
+        await this.assertStatusEquals('Aging')
+    }
+
+    private async assertStatusEquals(expected: string) {
+        const actual = await this.runner.getValue('select')
+        assert.isEqual(actual, expected)
     }
 }
