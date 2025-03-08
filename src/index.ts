@@ -1,6 +1,5 @@
 import Runner from './Runner/Runner'
 import { AbstractSingleRun } from './Runner/SingleRun'
-import wait from './Runner/wait'
 
 void (async () => {
     const runner = await Runner.Runner()
@@ -12,10 +11,22 @@ void (async () => {
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
+        const dropoffDate = '2025-03-10'
+        const killDateCalendar = '2025-03-11'
+
+        await this.clickNav('processor')
+        await this.clickTab('calendar')
+
+        await this.runner.click('.btn-harvest')
+        await this.runner.click('.btn-cut')
+
+        await this.runner.dragAndDrop(
+            `[data-date="${dropoffDate}"] .fc-event-draggable`,
+            `[data-date="${killDateCalendar}"]`
+        )
+
         debugger
-        await this.runner.redirect('/admin/job-export')
-        await wait(3000)
-        await this.runner.clickAtIndex('button', 2)
-        await this.runner.redirect('/processor')
+
+        await this.clickSaveInDialog()
     }
 }

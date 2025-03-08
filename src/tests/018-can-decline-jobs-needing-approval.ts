@@ -14,6 +14,8 @@ export default class Run extends AbstractSingleRun {
 
         await wait(5000)
 
+        debugger
+
         const jobIds = await this.declineAllJobsNeedingApproval()
 
         assert.isAbove(

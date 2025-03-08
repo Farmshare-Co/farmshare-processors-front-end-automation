@@ -285,6 +285,10 @@ export default class Runner {
 
         await page.mouse.down()
 
+        await wait(500)
+        await page.mouse.move(1, 1)
+        await wait(500)
+
         await this.hoverOver(destinationSelector)
 
         await page.mouse.up()

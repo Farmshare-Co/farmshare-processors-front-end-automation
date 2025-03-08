@@ -288,9 +288,8 @@ export abstract class AbstractSingleRun implements SingleRun {
 
     public async deleteAllJobsInProgress(): Promise<void> {
         await this.clickNav('processor')
-        await wait(1000)
         await this.clickTab('agenda')
-        await wait(1000)
+
         do {
             const button = await this.runner.get('.in-progress .btn-cancel', {
                 shouldThrowIfNotFound: false,
@@ -301,10 +300,16 @@ export abstract class AbstractSingleRun implements SingleRun {
             }
 
             await button.click()
-            await this.selectValue('reason', 'Other')
+            await wait(1000)
+            try {
+                await this.selectValue('reason', 'Other')
+            } catch (err) {
+                debugger
+                throw err
+            }
             await this.setInputValue('details', generateId())
             await this.clickSaveInDialog()
-            await wait(1000)
+            await wait(5000)
         } while (true)
     }
 
@@ -509,8 +514,11 @@ export abstract class AbstractSingleRun implements SingleRun {
         )
     }
 
-    protected generateCalendarEventTitle(stage: CalendarEventStage) {
-        return `${stage}: ${process.env.CUSTOMER_1_FARM}: 1 Beef`
+    protected generateCalendarEventTitle(
+        stage: CalendarEventStage,
+        inspectionLevel = 'Exempt'
+    ) {
+        return `${stage}: ${process.env.CUSTOMER_1_FARM}: 1 ${inspectionLevel} Beef`
     }
 
     protected async getDateCell(dropoffDate: string) {
@@ -548,7 +556,7 @@ export abstract class AbstractSingleRun implements SingleRun {
             try {
                 await reviewButton.click({})
                 await this.runner.click('.modal-dialog .btn-danger')
-                await wait(1000)
+                await wait(5000)
             } catch (err) {
                 debugger
                 throw err
