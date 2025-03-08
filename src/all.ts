@@ -34,4 +34,7 @@ void (async () => {
     await runner.shutdown()
 
     log.info('All tests passed!')
+
+    //kill the process
+    process.exit(0)
 })()

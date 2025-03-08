@@ -1,5 +1,6 @@
 import { assert } from '@sprucelabs/test-utils'
 import { AbstractSingleRun } from '../Runner/SingleRun'
+import wait from '../Runner/wait'
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
@@ -13,6 +14,7 @@ export default class Run extends AbstractSingleRun {
 
         await this.runner.setInputValue('[name="job-status"]', 'Aging')
 
+        await wait(3000)
         await this.assertStatusEquals('Aging')
     }
 
