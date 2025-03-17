@@ -51,7 +51,7 @@ export abstract class AbstractSingleRun implements SingleRun {
     }
 
     private async optionallySelectFarmName() {
-        await wait(1000)
+        await wait(5000)
         const url = this.runner.getCurrentUrl()
         if (url.includes('auth0')) {
             const forms = await this.runner.findAll('form')
@@ -670,6 +670,18 @@ export abstract class AbstractSingleRun implements SingleRun {
 
     protected async clickAddCutsheet() {
         await this.runner.click('button.btn-add-cutsheet')
+    }
+
+    protected async clickNewJobInDaysAgenda() {
+        await this.runner.click('.offcanvas-body .sticky-bottom button')
+    }
+
+    protected async clickDaysAgendaInCalendarDay(isoFormat: string) {
+        await this.runner.click(`[data-date="${isoFormat}"] .cell-agenda-link`)
+    }
+
+    protected async hoverOverCalendarDay(isoFormat: string) {
+        await this.runner.hoverOver(`[data-date="${isoFormat}"]`)
     }
 }
 
