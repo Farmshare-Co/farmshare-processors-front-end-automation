@@ -143,6 +143,11 @@ export abstract class AbstractSingleRun implements SingleRun {
         return await this.runner.getIsEnabled('button.chip-' + id)
     }
 
+    protected async getIsChipSelected(id: string) {
+        const className = await this.runner.getProp(`.chip-${id}`, 'className')
+        return className!.includes('btn-primary')
+    }
+
     protected async assertValueEquals(
         selector: string,
         expected: string,
@@ -168,6 +173,18 @@ export abstract class AbstractSingleRun implements SingleRun {
     }
 
     protected async addJob(options?: AddJobOptions) {
+        const { date, slotsRemaining } = await this.fillOutAddJobForm(options)
+
+        await this.clickSubmit()
+
+        await wait(5000)
+
+        const id = this.parseJobIdFromUrl()
+
+        return { date, slotsRemaining, id }
+    }
+
+    protected async fillOutAddJobForm(options?: AddJobOptions) {
         const {
             firstName,
             lastName,
@@ -221,14 +238,7 @@ export abstract class AbstractSingleRun implements SingleRun {
                 idx: i,
             })
         }
-
-        await this.clickSubmit()
-
-        await wait(5000)
-
-        const id = this.parseJobIdFromUrl()
-
-        return { date, slotsRemaining, id }
+        return { date, slotsRemaining }
     }
 
     private parseJobIdFromUrl() {
