@@ -241,7 +241,7 @@ export abstract class AbstractSingleRun implements SingleRun {
         return { date, slotsRemaining }
     }
 
-    private parseJobIdFromUrl() {
+    protected parseJobIdFromUrl() {
         const url = this.runner.getCurrentUrl()
         const match = url.match(
             /\/(?:processing-job|scheduling)\/([^/]+)\/details/
