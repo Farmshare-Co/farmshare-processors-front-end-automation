@@ -117,6 +117,19 @@ export abstract class AbstractSingleRun implements SingleRun {
         return this.runner.click(`button.chip-${id}`)
     }
 
+    protected async toggleChips(enable: string[], disable: string[]) {
+        for (const chip of enable) {
+            if (!(await this.getIsChipSelected(chip))) {
+                await this.clickChip(chip)
+            }
+        }
+        for (const chip of disable) {
+            if (await this.getIsChipSelected(chip)) {
+                await this.clickChip(chip)
+            }
+        }
+    }
+
     protected async clickCloseDialog() {
         await this.runner.click('.btn-close')
     }
@@ -701,6 +714,20 @@ export abstract class AbstractSingleRun implements SingleRun {
 
     protected async hoverOverCalendarDay(isoFormat: string) {
         await this.runner.hoverOver(`[data-date="${isoFormat}"]`)
+    }
+
+    protected async navigateToJobDetailBySearch(options: {
+        jobId?: string
+        search: string
+    }) {
+        const { jobId, search } = options
+
+        await this.clickNav('processor')
+        await this.clickTab('jobs')
+
+        await this.runner.setInputValue('.search-job', search)
+
+        await this.runner.click('[data-id="' + jobId + '"] a')
     }
 }
 
