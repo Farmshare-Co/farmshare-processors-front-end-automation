@@ -336,14 +336,15 @@ export abstract class AbstractSingleRun implements SingleRun {
         } while (true)
     }
 
-    protected async verifyJobInList(
+    protected async verifyInspectionLevelInList(
         jobId: string,
-        expectedText: string
+        expectedText: string,
+        moreSelectors: string[] | null = null
     ): Promise<void> {
-        await this.clickNav('processor')
-        await this.clickTab('jobs')
-
-        const jobHtml = await this.runner.getInnerHtml(`[data-id="${jobId}"]`)
+        const selector =
+            `[data-id="${jobId}"]` +
+            (moreSelectors ? ` ${moreSelectors.join(' ')}` : '')
+        const jobHtml = await this.runner.getInnerHtml(selector)
         assert.isTrue(jobHtml.toLowerCase().includes(expectedText))
     }
 

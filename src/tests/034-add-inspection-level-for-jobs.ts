@@ -3,10 +3,7 @@ import { AbstractSingleRun } from '../Runner/SingleRun'
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
         await this.deleteAllJobsInProgress()
-        await this.clickNav('processor')
-        await this.clickTab('add-job')
-
-        await this.addJob({
+        await this.addJobAsProcessor({
             firstName: 'Test',
             lastName: 'Farms',
             farmName: 'Test Farms',
@@ -17,12 +14,11 @@ export default class Run extends AbstractSingleRun {
         })
 
         const exemptJobId = this.parseJobIdFromUrl()
-        await this.verifyJobInList(exemptJobId!, 'exempt')
-
         await this.clickNav('processor')
-        await this.clickTab('add-job')
+        await this.clickTab('jobs')
+        await this.verifyInspectionLevelInList(exemptJobId!, 'exempt')
 
-        await this.addJob({
+        await this.addJobAsProcessor({
             firstName: 'Test',
             lastName: 'Farms',
             farmName: 'Test Farms',
@@ -33,6 +29,8 @@ export default class Run extends AbstractSingleRun {
         })
 
         const usdaJobId = this.parseJobIdFromUrl()
-        await this.verifyJobInList(usdaJobId!, 'usda')
+        await this.clickNav('processor')
+        await this.clickTab('jobs')
+        await this.verifyInspectionLevelInList(usdaJobId!, 'usda')
     }
 }
