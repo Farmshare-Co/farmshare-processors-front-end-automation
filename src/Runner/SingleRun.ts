@@ -336,6 +336,17 @@ export abstract class AbstractSingleRun implements SingleRun {
         } while (true)
     }
 
+    protected async verifyJobInList(
+        jobId: string,
+        expectedText: string
+    ): Promise<void> {
+        await this.clickNav('processor')
+        await this.clickTab('jobs')
+
+        const jobHtml = await this.runner.getInnerHtml(`[data-id="${jobId}"]`)
+        assert.isTrue(jobHtml.toLowerCase().includes(expectedText))
+    }
+
     public async scheduleJobFromCalendar() {
         const today = new Date()
         const { isoFormat } = this.addDays(today, 1)
