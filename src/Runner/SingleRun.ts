@@ -326,10 +326,16 @@ export abstract class AbstractSingleRun implements SingleRun {
     public async scheduleJobFromCalendar() {
         const today = new Date()
         const { isoFormat } = this.addDays(today, 1)
-        await this.hoverOverCalendarDay(isoFormat)
-        await this.clickDaysAgendaInCalendarDay(isoFormat)
+        await this.hoverOverCalendarDayAndClickDaysAgenda(isoFormat)
         await this.clickNewJobInDaysAgenda()
         await this.addJob()
+    }
+
+    protected async hoverOverCalendarDayAndClickDaysAgenda(
+        iosFormatDate: string
+    ) {
+        await this.hoverOverCalendarDay(iosFormatDate)
+        await this.clickDaysAgendaInCalendarDay(iosFormatDate)
     }
 
     protected async clickNav(name: string) {

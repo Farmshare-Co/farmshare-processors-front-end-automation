@@ -8,8 +8,7 @@ export default class Run extends AbstractSingleRun {
 
         const today = new Date()
         const { isoFormat } = this.addDays(today, 1)
-        await this.hoverOverCalendarDay(isoFormat)
-        await this.clickDaysAgendaInCalendarDay(isoFormat)
+        await this.hoverOverCalendarDayAndClickDaysAgenda(isoFormat)
         await this.clickNewJobInDaysAgenda()
 
         const value = await this.runner.getValue('[name="dates.start"]')
