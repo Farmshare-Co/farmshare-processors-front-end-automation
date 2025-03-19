@@ -376,6 +376,7 @@ export abstract class AbstractSingleRun implements SingleRun {
             lastName = process.env.CUSTOMER_1_LAST!,
             zip = process.env.CUSTOMER_1_ZIP!,
             phone = process.env.CUSTOMER_1_PHONE!,
+            hideZip = false,
             shouldCheckout = true,
             hasDeposit = true,
         } = options || {}
@@ -400,7 +401,7 @@ export abstract class AbstractSingleRun implements SingleRun {
             await this.enterDepositPaymentDetails({
                 firstName,
                 lastName,
-                zip,
+                zip: hideZip ? undefined : zip,
                 phone,
             })
         }
@@ -413,7 +414,7 @@ export abstract class AbstractSingleRun implements SingleRun {
     private async enterDepositPaymentDetails(options: {
         firstName: string
         lastName: string
-        zip: string
+        zip?: string
         phone: string
     }) {
         const { firstName, lastName, zip, phone } = options
@@ -759,6 +760,7 @@ export type CalendarEventStage = 'Drop-off' | 'Harvest' | 'Cut'
 
 export type AddJobAsProducerOptions = AddJobOptions & {
     zip?: string
+    hideZip?: boolean
     shouldCheckout?: boolean
     hasDeposit?: boolean
 }

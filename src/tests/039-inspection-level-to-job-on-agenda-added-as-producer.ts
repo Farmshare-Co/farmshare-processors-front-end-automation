@@ -1,18 +1,10 @@
 import { assert } from '@sprucelabs/test-utils'
-import Runner from './Runner/Runner'
-import { AbstractSingleRun, AddJobAsProducerOptions } from './Runner/SingleRun'
-import wait from './Runner/wait'
-
-void (async () => {
-    const runner = await Runner.Runner()
-    const run = new Run(runner)
-    await run.login()
-    await run.run()
-    await runner.shutdown()
-})()
+import { AbstractSingleRun, AddJobAsProducerOptions } from '../Runner/SingleRun'
+import wait from '../Runner/wait'
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
+        //logout
         await wait(4000)
         await this.runner.click('.dropdown-toggle')
         await wait(4000)
@@ -20,11 +12,14 @@ export default class Run extends AbstractSingleRun {
         await wait(4000)
 
         await this.addJobAsProducerAndAssertIfIsInPendingApproval('exempt')
+
+        //logout
         await wait(4000)
         await this.runner.click('.dropdown-toggle')
         await wait(4000)
         await this.runner.clickAtIndex('.dropdown-item', 1)
         await wait(4000)
+
         await this.addJobAsProducerAndAssertIfIsInPendingApproval('usda')
     }
 
