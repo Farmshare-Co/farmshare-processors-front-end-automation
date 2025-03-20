@@ -117,6 +117,19 @@ export abstract class AbstractSingleRun implements SingleRun {
         return this.runner.click(`button.chip-${id}`)
     }
 
+    protected async toggleChips(enable: string[], disable: string[]) {
+        for (const chip of enable) {
+            if (!(await this.getIsChipSelected(chip))) {
+                await this.clickChip(chip)
+            }
+        }
+        for (const chip of disable) {
+            if (await this.getIsChipSelected(chip)) {
+                await this.clickChip(chip)
+            }
+        }
+    }
+
     protected async clickCloseDialog() {
         await this.runner.click('.btn-close')
     }
@@ -323,6 +336,18 @@ export abstract class AbstractSingleRun implements SingleRun {
         } while (true)
     }
 
+    protected async verifyInspectionLevelInList(
+        jobId: string,
+        expectedText: string,
+        moreSelectors: string[] | null = null
+    ): Promise<void> {
+        const selector =
+            `[data-id="${jobId}"]` +
+            (moreSelectors ? ` ${moreSelectors.join(' ')}` : '')
+        const jobHtml = await this.runner.getInnerHtml(selector)
+        assert.isTrue(jobHtml.toLowerCase().includes(expectedText))
+    }
+
     public async scheduleJobFromCalendar() {
         const today = new Date()
         const { isoFormat } = this.addDays(today, 1)
@@ -362,7 +387,6 @@ export abstract class AbstractSingleRun implements SingleRun {
         } = options || {}
 
         await this.runner.openNewPage()
-
         await this.runner.redirect('/scheduling')
 
         const selector = process.env.SCHEDULING_FARM_SLUG
@@ -391,12 +415,12 @@ export abstract class AbstractSingleRun implements SingleRun {
         return { date, slotsRemaining, id }
     }
 
-    private async enterDepositPaymentDetails(options: {
-        firstName: string
-        lastName: string
-        zip: string
-        phone: string
-    }) {
+    private async enterDepositPaymentDetails(
+        options: Pick<
+            AddJobAsProducerOptions,
+            'firstName' | 'lastName' | 'zip' | 'phone'
+        >
+    ) {
         const { firstName, lastName, zip, phone } = options
         await this.assertExists('[name="embedded-checkout"]')
         await this.runner.focusOnFrame('embedded-checkout')
@@ -405,6 +429,7 @@ export abstract class AbstractSingleRun implements SingleRun {
         const all = await this.runner.findAll('button.LinkActionButton', {
             shouldThrowIfNotFound: false,
         })
+
         await wait(1000)
         for (const link of all) {
             const innerHtml = await link.getProperty('innerHTML')
@@ -421,15 +446,20 @@ export abstract class AbstractSingleRun implements SingleRun {
         await this.setInputValue('cardCvc', '123')
         await this.setInputValue('billingName', `${firstName} ${lastName}`)
 
-        await this.setInputValue('billingPostalCode', zip)
+        if (zip && zip !== 'false') {
+            await this.setInputValue('billingPostalCode', zip)
+        }
 
         await wait(1000)
         await this.runner.click('[name="termsOfServiceConsentCheckbox"]')
-        const phoneInput = await this.runner.get('[name="phoneNumber"]', {
-            shouldThrowIfNotFound: false,
-        })
-        if (phoneInput) {
-            await this.setInputValue('phoneNumber', phone)
+
+        if (phone) {
+            const phoneInput = await this.runner.get('[name="phoneNumber"]', {
+                shouldThrowIfNotFound: false,
+            })
+            if (phoneInput) {
+                await this.setInputValue('phoneNumber', phone)
+            }
         }
 
         await wait(1000)
@@ -708,6 +738,20 @@ export abstract class AbstractSingleRun implements SingleRun {
     protected async hoverOverCalendarDay(isoFormat: string) {
         await this.runner.hoverOver(`[data-date="${isoFormat}"]`)
     }
+
+    protected async navigateToJobDetailBySearch(options: {
+        jobId?: string
+        search: string
+    }) {
+        const { jobId, search } = options
+
+        await this.clickNav('processor')
+        await this.clickTab('jobs')
+
+        await this.runner.setInputValue('.search-job', search)
+
+        await this.runner.click('[data-id="' + jobId + '"] a')
+    }
 }
 
 interface AddJobOptions {
@@ -724,8 +768,8 @@ interface AddJobOptions {
 
 export type CalendarEventStage = 'Drop-off' | 'Harvest' | 'Cut'
 
-export type AddJobAsProducerOptions = AddJobOptions & {
-    zip?: string
+export interface AddJobAsProducerOptions extends AddJobOptions {
+    zip?: string | false
     shouldCheckout?: boolean
     hasDeposit?: boolean
 }

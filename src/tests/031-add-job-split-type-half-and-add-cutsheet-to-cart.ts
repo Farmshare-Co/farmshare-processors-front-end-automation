@@ -58,7 +58,11 @@ export default class Run extends AbstractSingleRun {
 
         await wait(400)
         const jobId = this.parseJobIdFromUrl()
-        await this.navigateToJobDetailBySearch(jobId)
+        await this.navigateToJobDetailBySearch({ jobId, search: 'Test Farms' })
+
+        await this.clickTab('cutsheets')
+
+        await this.runner.click('.edit-all-cutsheets')
 
         await this.runner.click('.btn-add-to-cart')
 
@@ -76,32 +80,6 @@ export default class Run extends AbstractSingleRun {
             const selector = `[for="form.cutsheets.usdaBeef1${firstName}${lastName}Half${idx}"]`
             const value = await this.runner.getInnerText(selector)
             assert.isTrue(value?.includes(`${firstName} ${lastName}`))
-        }
-    }
-
-    private async navigateToJobDetailBySearch(jobId?: string) {
-        await this.clickNav('processor')
-        await this.clickTab('jobs')
-
-        await this.runner.setInputValue('.search-job', 'Test Farms')
-
-        await this.runner.click('[data-id="' + jobId + '"] a')
-
-        await this.clickTab('cutsheets')
-
-        await this.runner.click('.edit-all-cutsheets')
-    }
-
-    private async toggleChips(enable: string[], disable: string[]) {
-        for (const chip of enable) {
-            if (!(await this.getIsChipSelected(chip))) {
-                await this.clickChip(chip)
-            }
-        }
-        for (const chip of disable) {
-            if (await this.getIsChipSelected(chip)) {
-                await this.clickChip(chip)
-            }
         }
     }
 
