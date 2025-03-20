@@ -1,6 +1,6 @@
 import { assert } from '@sprucelabs/test-utils'
 import Runner from './Runner/Runner'
-import { AbstractSingleRun, AddJobAsProducerOptions } from './Runner/SingleRun'
+import { AbstractSingleRun } from './Runner/SingleRun'
 import wait from './Runner/wait'
 
 void (async () => {
@@ -9,67 +9,38 @@ void (async () => {
     await run.login()
     await run.run()
     await runner.shutdown()
+    console.log('TEST PASSED!')
 })()
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
-        await wait(4000)
-        await this.runner.click('.dropdown-toggle')
-        await wait(4000)
-        await this.runner.clickAtIndex('.dropdown-item', 1)
-        await wait(4000)
-
+        await wait(3000)
+        await this.declineAllJobsNeedingApproval()
         await this.addJobAsProducerAndAssertIfIsInPendingApproval('exempt')
-        await wait(4000)
-        await this.runner.click('.dropdown-toggle')
-        await wait(4000)
-        await this.runner.clickAtIndex('.dropdown-item', 1)
-        await wait(4000)
         await this.addJobAsProducerAndAssertIfIsInPendingApproval('usda')
     }
 
     private async addJobAsProducerAndAssertIfIsInPendingApproval(
         inspection: string
     ) {
-        const expectedFarmerData: AddJobAsProducerOptions = {
-            firstName: 'John',
-            lastName: 'Doe',
-            email: 'johndoefarm@gmail.com',
-            phone: '999-999-1234',
-            farmName: "Jonh's Farm",
+        const { id } = await this.addJobAsProducer({
+            firstName: process.env.CUSTOMER_2_FIRST ?? 'John',
+            lastName: process.env.CUSTOMER_2_LAST ?? 'Doe',
+            email: process.env.CUSTOMER_2_EMAIL ?? 'johndoefarm@gmail.com',
+            phone: process.env.CUSTOMER_2_PHONE ?? '999-999-1234',
+            farmName: process.env.CUSTOMER_2_FARM ?? "Jonh's Farm",
+            zip: process.env.CUSTOMER_2_ZIP ?? '90210',
             inspection,
-            hideZip: true,
-        }
+        })
 
-        const { id } = await this.addJobAsProducer(expectedFarmerData)
+        await this.runner.close()
+        await this.runner.refresh()
 
-        await wait(4000)
+        const innerText = await this.runner.getInnerText(`[data-id="${id}"] a`)
 
-        await this.runner.clickAtIndex('[type="button"]', 1)
-
-        await this.login()
-
-        await wait(4000)
-
-        const maxAttempts = 50 // Limite de tentativas (ajuste conforme necessário)
-        let attempts = 0
-
-        while ((await this.runner.get(`[data-id="${id}"]`)) === null) {
-            if (attempts >= maxAttempts) {
-                throw new Error(
-                    `Elemento com data-id="${id}" não encontrado após ${maxAttempts} tentativas.`
-                )
-            }
-
-            await wait(100)
-            await this.runner.clickAtIndex('.page-link [aria-hidden="true"]', 2)
-            attempts++
-        }
-
-        const innerText = await this.runner.getInnerText(
-            `[href="/processing-job/${id}"]`
+        assert.isTrue(
+            innerText?.toLowerCase().includes(`${inspection} beef`),
+            `Inspection level not found in pending aproval card`
         )
-
-        assert.isTrue(innerText?.toLowerCase().includes(`${inspection} beef`))
     }
 }

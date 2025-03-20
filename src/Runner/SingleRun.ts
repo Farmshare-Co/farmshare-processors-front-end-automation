@@ -376,13 +376,11 @@ export abstract class AbstractSingleRun implements SingleRun {
             lastName = process.env.CUSTOMER_1_LAST!,
             zip = process.env.CUSTOMER_1_ZIP!,
             phone = process.env.CUSTOMER_1_PHONE!,
-            hideZip = false,
             shouldCheckout = true,
             hasDeposit = true,
         } = options || {}
 
         await this.runner.openNewPage()
-
         await this.runner.redirect('/scheduling')
 
         const selector = process.env.SCHEDULING_FARM_SLUG
@@ -401,7 +399,7 @@ export abstract class AbstractSingleRun implements SingleRun {
             await this.enterDepositPaymentDetails({
                 firstName,
                 lastName,
-                zip: hideZip ? undefined : zip,
+                zip,
                 phone,
             })
         }
@@ -411,12 +409,12 @@ export abstract class AbstractSingleRun implements SingleRun {
         return { date, slotsRemaining, id }
     }
 
-    private async enterDepositPaymentDetails(options: {
-        firstName: string
-        lastName: string
-        zip?: string
-        phone: string
-    }) {
+    private async enterDepositPaymentDetails(
+        options: Pick<
+            AddJobAsProducerOptions,
+            'firstName' | 'lastName' | 'zip' | 'phone'
+        >
+    ) {
         const { firstName, lastName, zip, phone } = options
         await this.assertExists('[name="embedded-checkout"]')
         await this.runner.focusOnFrame('embedded-checkout')
@@ -425,6 +423,7 @@ export abstract class AbstractSingleRun implements SingleRun {
         const all = await this.runner.findAll('button.LinkActionButton', {
             shouldThrowIfNotFound: false,
         })
+
         await wait(1000)
         for (const link of all) {
             const innerHtml = await link.getProperty('innerHTML')
@@ -441,15 +440,20 @@ export abstract class AbstractSingleRun implements SingleRun {
         await this.setInputValue('cardCvc', '123')
         await this.setInputValue('billingName', `${firstName} ${lastName}`)
 
-        await this.setInputValue('billingPostalCode', zip)
+        if (zip && zip !== 'false') {
+            await this.setInputValue('billingPostalCode', zip)
+        }
 
         await wait(1000)
         await this.runner.click('[name="termsOfServiceConsentCheckbox"]')
-        const phoneInput = await this.runner.get('[name="phoneNumber"]', {
-            shouldThrowIfNotFound: false,
-        })
-        if (phoneInput) {
-            await this.setInputValue('phoneNumber', phone)
+
+        if (phone) {
+            const phoneInput = await this.runner.get('[name="phoneNumber"]', {
+                shouldThrowIfNotFound: false,
+            })
+            if (phoneInput) {
+                await this.setInputValue('phoneNumber', phone)
+            }
         }
 
         await wait(1000)
@@ -758,9 +762,8 @@ interface AddJobOptions {
 
 export type CalendarEventStage = 'Drop-off' | 'Harvest' | 'Cut'
 
-export type AddJobAsProducerOptions = AddJobOptions & {
-    zip?: string
-    hideZip?: boolean
+export interface AddJobAsProducerOptions extends AddJobOptions {
+    zip?: string | false
     shouldCheckout?: boolean
     hasDeposit?: boolean
 }
