@@ -67,6 +67,12 @@ export default class Runner {
         this.browser = browser
     }
 
+    public async scrollTo() {
+        await this.page.evaluate(() => {
+            window.scrollBy(0, 10000000)
+        })
+    }
+
     public async findAll(selector: string, options?: SelectOptions) {
         await this.waitForSelector(selector, options)
         return await this.page.$$(selector)

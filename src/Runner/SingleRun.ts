@@ -161,6 +161,10 @@ export abstract class AbstractSingleRun implements SingleRun {
         return className!.includes('btn-primary')
     }
 
+    protected async scrollToBottomOfPage() {
+        await this.runner.scrollTo()
+    }
+
     protected async assertValueEquals(
         selector: string,
         expected: string,
