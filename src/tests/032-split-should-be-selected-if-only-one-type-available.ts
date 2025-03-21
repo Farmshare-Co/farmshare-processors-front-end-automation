@@ -23,15 +23,13 @@ export default class Run extends AbstractSingleRun {
         )
 
         await this.clickSubmit()
-
         await this.clickTab('add-job')
-
         await this.fillOutAddJobForm({
-            firstName: 'Test',
-            lastName: 'Farms',
-            farmName: 'Test Farms',
-            phone: '555-123-1234',
-            email: 'testFarm@gmail.com',
+            firstName: process.env.CUSTOMER_2_FIRST ?? 'John',
+            lastName: process.env.CUSTOMER_2_LAST ?? 'Doe',
+            email: process.env.CUSTOMER_2_EMAIL ?? 'johndoefarm@gmail.com',
+            phone: process.env.CUSTOMER_2_PHONE ?? '999-999-1234',
+            farmName: process.env.CUSTOMER_2_FARM ?? "Jonh's Farm",
             inspection: false,
             totalHeads: 1,
         })
@@ -48,10 +46,15 @@ export default class Run extends AbstractSingleRun {
 
         await this.clickSubmit()
 
+        const jobId = this.parseJobIdFromUrl()
+        await this.clickNav('processor')
         await this.clickTab('jobs')
 
-        const jobId = this.parseJobIdFromUrl()
-        await this.navigateToJobDetailBySearch({ jobId, search: 'Test Farms' })
+        //TODO use CUSTOMER_2_FARM
+        await this.navigateToJobDetailBySearch({
+            jobId,
+            search: process.env.CUSTOMER_2_FARM ?? "Jonh's Farm",
+        })
 
         await this.clickTab('heads')
 
@@ -72,11 +75,5 @@ export default class Run extends AbstractSingleRun {
         await this.clickSubmit()
 
         await this.assertSuccessfulAction()
-    }
-
-    private async assertSuccessfulAction() {
-        const success = await this.runner.get('.toast-container .bg-success')
-
-        assert.isTrue(!!success)
     }
 }

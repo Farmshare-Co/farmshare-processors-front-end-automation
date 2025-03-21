@@ -1,6 +1,5 @@
 import { assert } from '@sprucelabs/test-utils'
 import { AbstractSingleRun } from '../Runner/SingleRun'
-import wait from '../Runner/wait'
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
@@ -13,18 +12,23 @@ export default class Run extends AbstractSingleRun {
         )
         await this.clickSubmit()
         await this.clickTab('add-job')
+
+        //TODO: move to CUSTOMER_2_ENV
         await this.fillOutAddJobForm({
-            firstName: 'Test',
-            lastName: 'Farms',
-            farmName: 'Test Farms',
-            phone: '555-123-1234',
-            email: 'testFarm@gmail.com',
+            firstName: process.env.CUSTOMER_2_FIRST ?? 'John',
+            lastName: process.env.CUSTOMER_2_LAST ?? 'Doe',
+            email: process.env.CUSTOMER_2_EMAIL ?? 'johndoefarm@gmail.com',
+            phone: process.env.CUSTOMER_2_PHONE ?? '999-999-1234',
+            farmName: process.env.CUSTOMER_2_FARM ?? "Jonh's Farm",
             inspection: false,
             totalHeads: 0,
         })
+
         await this.runner.click('.add-animal-btn')
 
         await this.selectValue(`scheduledHeads[0].splitType`, 'half')
+
+        await this.selectValue(`scheduledHeads[0].inspectionLevel`, 'usda')
 
         await this.runner.clickAtIndex('.edit-contact', 0)
 
@@ -42,34 +46,25 @@ export default class Run extends AbstractSingleRun {
             lastName: contacts[0].lastName,
             email: contacts[0].email,
         })
-
         await this.clickSaveInDialog()
-
         await this.runner.clickAtIndex('.edit-contact', 1)
-
         await this.fillOutAnimalHeadContactForm({
             firstName: contacts[1].firstName,
             lastName: contacts[1].lastName,
             email: contacts[1].email,
         })
-
         await this.clickSaveInDialog()
         await this.clickSubmit()
-
-        await wait(400)
         const jobId = this.parseJobIdFromUrl()
-        await this.navigateToJobDetailBySearch({ jobId, search: 'Test Farms' })
-
+        await this.navigateToJobDetailBySearch({
+            jobId,
+            search: process.env.CUSTOMER_2_FARM ?? "Jonh's Farm",
+        })
         await this.clickTab('cutsheets')
-
         await this.runner.click('.edit-all-cutsheets')
-
         await this.runner.click('.btn-add-to-cart')
-
         await this.clickCheckboxesForAllSplitsInCutsheetDetailsDialog()
-
         await this.assertInnerTextIntoCutsheetsCart(contacts)
-
         await this.clickSaveInDialog()
         await this.clickSubmit()
     }
