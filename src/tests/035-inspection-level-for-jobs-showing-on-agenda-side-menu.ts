@@ -5,11 +5,6 @@ export default class Run extends AbstractSingleRun {
         await this.deleteAllJobsInProgress()
         const inspection = 'exempt'
         await this.addJobAsProcessor({
-            firstName: 'Test',
-            lastName: 'Farms',
-            farmName: 'Test Farms',
-            phone: '555-123-1234',
-            email: 'testFarm@gmail.com',
             inspection,
             totalHeads: 1,
         })

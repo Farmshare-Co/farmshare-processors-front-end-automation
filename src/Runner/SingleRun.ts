@@ -161,6 +161,10 @@ export abstract class AbstractSingleRun implements SingleRun {
         return className!.includes('btn-primary')
     }
 
+    protected async scrollToBottomOfPage() {
+        await this.runner.scrollTo()
+    }
+
     protected async assertValueEquals(
         selector: string,
         expected: string,
@@ -189,8 +193,6 @@ export abstract class AbstractSingleRun implements SingleRun {
         const { date, slotsRemaining } = await this.fillOutAddJobForm(options)
 
         await this.clickSubmit()
-
-        await wait(5000)
 
         const id = this.parseJobIdFromUrl()
 
@@ -273,6 +275,7 @@ export abstract class AbstractSingleRun implements SingleRun {
 
         await this.runner.click('.add-animal-btn')
 
+        await wait(1000)
         if (inspection !== false) {
             await this.selectValue(
                 `scheduledHeads[${idx}].inspectionLevel`,
@@ -285,7 +288,17 @@ export abstract class AbstractSingleRun implements SingleRun {
             splitType ?? 'whole'
         )
 
-        await this.selectValue(`scheduledHeads[${idx}].sex`, sex ?? 'm')
+        const existSexSelect = await this.runner.getProp(
+            `[name="scheduledHeads[${idx}].sex"]`,
+            'className',
+            {
+                shouldThrowIfNotFound: false,
+            }
+        )
+
+        if (existSexSelect) {
+            await this.selectValue(`scheduledHeads[${idx}].sex`, sex ?? 'm')
+        }
 
         await this.runner.click('.edit-contact')
         await this.runner.click('[name="isRequestedByUser"]')
@@ -744,13 +757,17 @@ export abstract class AbstractSingleRun implements SingleRun {
         search: string
     }) {
         const { jobId, search } = options
-
         await this.clickNav('processor')
         await this.clickTab('jobs')
-
         await this.runner.setInputValue('.search-job', search)
 
         await this.runner.click('[data-id="' + jobId + '"] a')
+    }
+
+    protected async assertSuccessfulAction() {
+        const success = await this.runner.get('.toast-container .bg-success')
+
+        assert.isTrue(!!success)
     }
 }
 

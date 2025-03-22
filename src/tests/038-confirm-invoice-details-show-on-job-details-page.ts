@@ -5,11 +5,11 @@ import wait from '../Runner/wait'
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
         const expectedFarmerData = {
-            firstName: 'John',
-            lastName: 'Doe',
-            email: 'johndoefarm@gmail.com',
-            phone: '999-999-1234',
-            farmName: "Jonh's Farm",
+            firstName: process.env.CUSTOMER_2_FIRST ?? 'John',
+            lastName: process.env.CUSTOMER_2_LAST ?? 'Doe',
+            email: process.env.CUSTOMER_2_EMAIL ?? 'johndoefarm@gmail.com',
+            phone: process.env.CUSTOMER_2_PHONE ?? '999-999-1234',
+            farmName: process.env.CUSTOMER_2_FARM ?? "Jonh's Farm",
         }
         const { id } = await this.addJobAsProcessor(expectedFarmerData)
 
