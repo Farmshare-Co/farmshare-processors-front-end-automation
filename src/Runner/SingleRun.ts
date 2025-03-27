@@ -81,7 +81,7 @@ export abstract class AbstractSingleRun implements SingleRun {
         await this.runner.waitForSelector('[autocomplete="username webauthn"]')
         await this.runner.type(
             '[autocomplete="username webauthn"]',
-            process.env.GOOGLE_EMAIL!
+            process.env.EMAIL!
         )
         await this.runner.click('[id="identifierNext"]')
 
@@ -90,12 +90,14 @@ export abstract class AbstractSingleRun implements SingleRun {
         await this.runner.waitForSelector('[type="password"]')
 
         await wait(2000)
-        await this.runner.type(
-            '[type="password"]',
-            process.env.GOOGLE_PASSWORD!
-        )
+        await this.runner.type('[type="password"]', process.env.PASSWORD!)
 
         await this.runner.clickAtIndex('button', 1)
+
+        //wait 10 seconds for 2fa TODO: move to url check
+        await wait(10000)
+
+        await this.optionallySelectFarmName()
     }
 
     protected async clickSaveInDialog() {
@@ -258,8 +260,9 @@ export abstract class AbstractSingleRun implements SingleRun {
 
     protected parseJobIdFromUrl() {
         const url = this.runner.getCurrentUrl()
+
         const match = url.match(
-            /\/(?:processing-job|scheduling)\/([^/]+)\/details/
+            /\/(?:processing-job|scheduling)\/([^/]+)\/(?:details|cutsheets)(?:\?.*)?$/
         )
         const id = match?.[1]
         return id

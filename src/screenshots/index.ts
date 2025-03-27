@@ -1,7 +1,8 @@
-import { diskUtil } from '@sprucelabs/spruce-skill-utils'
-import Runner from './Runner/Runner'
-import { AbstractSingleRun } from './Runner/SingleRun'
-import wait from './Runner/wait'
+import globby from '@sprucelabs/globby'
+import { diskUtil, slug } from '@sprucelabs/spruce-skill-utils'
+import Runner from '../Runner/Runner'
+import { AbstractSingleRun } from '../Runner/SingleRun'
+import wait from '../Runner/wait'
 
 void (async () => {
     const runner = await Runner.Runner()
@@ -25,13 +26,17 @@ export default class Run extends AbstractSingleRun {
 
         this.setupSkipFileIfDoesntExist()
 
-        const vendorIds = await this.getVendorIdsToConsider()
+        const vendorIds = await this.getVendorsToConsider()
 
         let idx = 0
-        for (const vendorId of vendorIds) {
+        for (const vendor of vendorIds) {
+            const { value: vendorId, label } = vendor
+            const vendorSlug = slug(label)
+
             if (idx++ > 0) {
                 await this.clickSwitchVendorDropdown()
             }
+
             await this.runner.select('[name="vendor"]', vendorId)
             await this.clickSaveInDialog()
             await wait(1000)
@@ -49,25 +54,105 @@ export default class Run extends AbstractSingleRun {
                 continue
             }
 
+            await this.clickNav('processor')
+            await this.downloadAllCutsheetsOnJobs(vendorSlug)
+
+            await this.clickNav('processor')
+
             const foundCapabilities =
-                await this.takeScreensOfAllCapabilities(vendorId)
+                await this.takeScreensOfAllCapabilities(vendorSlug)
 
             if (!foundCapabilities) {
                 this.addVendorToSkipList(vendorId)
                 continue
             }
 
-            await this.takeScreensOfAllVendorCutsheets(vendorId)
+            await this.takeScreensOfAllVendorCutsheets(vendorSlug)
         }
     }
 
-    private async getVendorIdsToConsider() {
-        let vendorIds =
-            await this.runner.getValuesForSelectOptions('[name="vendor"]')
+    private async downloadAllCutsheetsOnJobs(vendorSlug: string) {
+        this.log.info(`Downloading all cutsheets for ${vendorSlug}`)
+        await wait(4000)
+
+        const bookingsInProgress = await this.runner.findAll(
+            '.in-progress td:first-of-type a',
+            { shouldThrowIfNotFound: false }
+        )
+        const totalBookingsInProgress = bookingsInProgress.length
+
+        for (
+            let bookingIndex = 0;
+            bookingIndex < totalBookingsInProgress;
+            bookingIndex++
+        ) {
+            if (bookingIndex > 0) {
+                await this.clickNav('processor')
+            }
+
+            await this.runner.clickAtIndex('.in-progress a', bookingIndex)
+            await wait(1000)
+            await this.downloadAllCutsheetsForVendor(vendorSlug)
+        }
+    }
+
+    private async downloadAllCutsheetsForVendor(vendorSlug: string) {
+        const jobId = this.parseJobIdFromUrl()
+
+        if (!jobId) {
+            debugger
+        }
+
+        await this.clickTab('cutsheets')
+        await wait(4000)
+
+        //should not include buttons with disabled attribute
+        const buttonSelector = '.btn-download-cutsheet:not([disabled])'
+        const cutsheets = await this.runner.findAll(buttonSelector, {
+            shouldThrowIfNotFound: false,
+        })
+        const totalCutsheets = cutsheets.length
+
+        const path = await this.runner.setDownloadPath(
+            `${vendorSlug}/cutsheets/_tpm`
+        )
+
+        for (
+            let cutsheetIndex = 0;
+            cutsheetIndex < totalCutsheets;
+            cutsheetIndex++
+        ) {
+            await this.runner.clickAtIndex(buttonSelector, cutsheetIndex)
+
+            let matches: string[] = []
+
+            let attemptsLeft = 100
+
+            do {
+                matches = await globby(`${path}/*.pdf`)
+                await wait(1000)
+                attemptsLeft--
+                if (attemptsLeft === 0) {
+                    throw new Error('Failed to download cutsheet')
+                }
+            } while (matches.length === 0)
+
+            const newName = `${jobId}-${cutsheetIndex}-${this.stage}.pdf`
+            const destination = diskUtil.resolvePath(path, '..', newName)
+            if (diskUtil.doesFileExist(destination)) {
+                diskUtil.deleteFile(destination)
+            }
+
+            diskUtil.moveFile(matches[0], destination)
+        }
+    }
+
+    private async getVendorsToConsider() {
+        let vendors = await this.runner.getOptionsForSelect('[name="vendor"]')
 
         const toSkip = this.getVendorToSkip()
-        vendorIds = vendorIds.filter((id) => !toSkip.includes(id))
-        return vendorIds
+        vendors = vendors.filter((vendor) => !toSkip.includes(vendor.value))
+        return vendors
     }
 
     private setupSkipFileIfDoesntExist() {
@@ -91,7 +176,7 @@ export default class Run extends AbstractSingleRun {
         diskUtil.writeFile(this.vendorsToSkipFile, JSON.stringify(ids))
     }
 
-    private async takeScreensOfAllVendorCutsheets(vendorId: string) {
+    private async takeScreensOfAllVendorCutsheets(vendorSlug: string) {
         await this.clickTab('cutsheets')
 
         await wait(1000)
@@ -113,14 +198,14 @@ export default class Run extends AbstractSingleRun {
             await wait(1000)
 
             await this.runner.takeScreenshot(
-                `${vendorId}/cutsheets/${this.stage}-${cutsheetIndex}`
+                `${vendorSlug}/cutsheets/${cutsheetIndex}-${this.stage}`
             )
 
             await this.clickCloseDialog()
         }
     }
 
-    private async takeScreensOfAllCapabilities(vendorId: string) {
+    private async takeScreensOfAllCapabilities(vendorSlug: string) {
         await this.clickTab('capabilities')
         await wait(1000)
 
@@ -129,7 +214,7 @@ export default class Run extends AbstractSingleRun {
         })
 
         if (alertMessage) {
-            this.log.info(`Skipping ${vendorId} because not configured`)
+            this.log.info(`Skipping ${vendorSlug} because not configured`)
             return false
         }
 
@@ -137,7 +222,7 @@ export default class Run extends AbstractSingleRun {
         const totalCapabilities = capabilityTabs.length
 
         if (totalCapabilities === 0) {
-            this.log.info(`Skipping ${vendorId} because no capabilities`)
+            this.log.info(`Skipping ${vendorSlug} because no capabilities`)
             return false
         }
 
@@ -153,7 +238,7 @@ export default class Run extends AbstractSingleRun {
 
             await wait(1000)
             await this.runner.takeScreenshot(
-                `${vendorId}/capabilities/${this.stage}-${capabilitiesIndex}`
+                `${vendorSlug}/capabilities/${this.stage}-${capabilitiesIndex}`
             )
         }
 

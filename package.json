@@ -14,6 +14,7 @@
     "fix.lint": "eslint --fix --cache '**/*.ts'",
     "one": "node build/index.js",
     "all": "node build/all.js",
+    "screenshots": "node build/screenshots/index.js",
     "lint.tsc": "tsc -p . --noEmit",
     "lint": "eslint --cache '**/*.ts'",
     "post.watch.build": "yarn run build.copy-files && yarn run build.resolve-paths",
@@ -22,6 +23,7 @@
     "update.dependencies": "yarn run clean.dependencies && yarn",
     "watch.build.dev": "tsc-watch --sourceMap --onCompilationComplete 'yarn run post.watch.build'",
     "watch.rebuild": "yarn run clean.all && yarn install && yarn run watch.build.dev",
+    "dump.prod.and.setup.locally": "scripts/dump-prod-and-setup-locally.sh",
     "watch.tsc": "tsc -w"
   },
   "devDependencies": {
