@@ -14,7 +14,7 @@ void (async () => {
 })()
 
 export default class Run extends AbstractSingleRun {
-    private stage: 'before' | 'after' = 'before'
+    private stage: 'before' | 'after' = 'after'
     private vendorsToSkipPath = diskUtil.resolvePath(process.cwd(), '.cache/')
     private vendorsToSkipFile = diskUtil.resolvePath(
         this.vendorsToSkipPath,
@@ -55,7 +55,12 @@ export default class Run extends AbstractSingleRun {
             }
 
             await this.clickNav('processor')
-            await this.downloadAllCutsheetsOnJobs(vendorSlug)
+            try {
+                await this.downloadAllCutsheetsOnJobs(vendorSlug)
+            } catch (err: any) {
+                debugger
+                this.log.error('Failed to download cutsheets', err.stack)
+            }
 
             await this.clickNav('processor')
 
@@ -88,6 +93,7 @@ export default class Run extends AbstractSingleRun {
         ) {
             if (bookingIndex > 0) {
                 await this.clickNav('processor')
+                await wait(4000)
             }
 
             await this.runner.clickAtIndex('.in-progress a', bookingIndex)
@@ -238,7 +244,7 @@ export default class Run extends AbstractSingleRun {
 
             await wait(1000)
             await this.runner.takeScreenshot(
-                `${vendorSlug}/capabilities/${this.stage}-${capabilitiesIndex}`
+                `${vendorSlug}/capabilities/${capabilitiesIndex}-${this.stage}`
             )
         }
 
