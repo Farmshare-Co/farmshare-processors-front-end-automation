@@ -1,7 +1,5 @@
-import { assert } from '@sprucelabs/test-utils'
 import Runner from './Runner/Runner'
 import { AbstractSingleRun } from './Runner/SingleRun'
-import wait from './Runner/wait'
 
 void (async () => {
     const runner = await Runner.Runner()

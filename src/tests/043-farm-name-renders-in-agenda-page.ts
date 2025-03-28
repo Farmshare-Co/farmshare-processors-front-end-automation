@@ -5,8 +5,10 @@ import wait from '../Runner/wait'
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
         await this.deleteAllJobsInProgress()
+        await this.declineAllJobsNeedingApproval()
         await this.clickNav('processor')
         await this.clickTab('add-job')
+
         const addJobParams = {
             firstName: process.env.CUSTOMER_2_FIRST ?? 'John',
             lastName: process.env.CUSTOMER_2_LAST ?? 'Doe',
@@ -20,15 +22,13 @@ export default class Run extends AbstractSingleRun {
         await this.clickNav('processor')
         await this.clickTab('agenda')
 
-        const findAllRes = await this.runner.findAll(
-            `.needs-attention [data-id="${id}"] td`,
-            {
-                shouldThrowIfNotFound: true,
-            }
+        const text = await this.runner.getInnerText(
+            `.needs-attention [data-id="${id}"]`
         )
 
-        const text = await findAllRes[2].evaluate((node) => node.textContent)
-
-        assert.isTrue(text?.includes(addJobParams.farmName))
+        assert.isTrue(
+            text?.includes(addJobParams.farmName),
+            'Jobs needing attention do not include Farm name'
+        )
     }
 }

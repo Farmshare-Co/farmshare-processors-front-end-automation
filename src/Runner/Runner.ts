@@ -31,7 +31,6 @@ export default class Runner {
         assertOptions(process, [
             'env.EMAIL',
             'env.PASSWORD',
-            'env.LOGIN_STRATEGY',
             'env.DOMAIN',
             'env.CUSTOMER_1_FIRST',
             'env.CUSTOMER_1_LAST',
@@ -39,6 +38,12 @@ export default class Runner {
             'env.CUSTOMER_1_EMAIL',
             'env.CUSTOMER_1_FARM',
             'env.CUSTOMER_1_ZIP',
+            'env.CUSTOMER_2_FIRST',
+            'env.CUSTOMER_2_LAST',
+            'env.CUSTOMER_2_PHONE',
+            'env.CUSTOMER_2_EMAIL',
+            'env.CUSTOMER_2_FARM',
+            'env.CUSTOMER_2_ZIP',
         ])
 
         const { page, browser } = await Runner.Page()
@@ -54,7 +59,7 @@ export default class Runner {
         const page = await browser.newPage()
         await page.setViewport({
             width: 1500,
-            height: 1200,
+            height: parseInt(process.env.VIEWPORT_HEIGHT ?? `${1200}`, 10),
         })
         return { page, browser }
     }
@@ -76,6 +81,28 @@ export default class Runner {
     public async findAll(selector: string, options?: SelectOptions) {
         await this.waitForSelector(selector, options)
         return await this.page.$$(selector)
+    }
+
+    public async getValuesForSelectOptions(selector: string) {
+        debugger
+        const options = await this.getOptionsForSelect(selector)
+        const values = options.map((o) => o.value)
+
+        return values.filter((v) => !!v) as string[]
+    }
+
+    public async getOptionsForSelect(selector: string) {
+        const values = await this.page.$$eval(selector + ' option', (options) =>
+            options.map((option) => ({
+                value: option.getAttribute('value'),
+                label: option.textContent,
+            }))
+        )
+
+        return values.filter((v) => !!v.value) as {
+            value: string
+            label: string
+        }[]
     }
 
     public async refresh() {
@@ -307,6 +334,55 @@ export default class Runner {
             sourceBox!.x + sourceBox!.width / 2,
             sourceBox!.y + sourceBox!.height / 2
         )
+    }
+
+    public async setDownloadPath(path: string) {
+        const downloadDir = process.env.DOWNLOAD_DIR
+        if (!downloadDir) {
+            throw new Error('Please define DOWNLOAD_DIR in your environment!')
+        }
+
+        const fullPath = diskUtil.resolvePath(downloadDir, path)
+
+        if (!diskUtil.doesDirExist(fullPath)) {
+            diskUtil.createDir(fullPath)
+        }
+
+        if (!(this.page instanceof Page)) {
+            throw new Error('You cannot set download path in an iFrame!')
+        }
+
+        const client = await this.page.createCDPSession()
+        await client.send('Page.setDownloadBehavior', {
+            behavior: 'allow',
+            downloadPath: fullPath,
+        })
+
+        return fullPath
+    }
+
+    public async takeScreenshot(path: string) {
+        const screenshotDir = process.env.SCREENSHOT_DIR
+        if (!screenshotDir) {
+            throw new Error('Please define SCREENSHOT_DIR in your environment!')
+        }
+
+        const screenshotPath =
+            diskUtil.resolvePath(screenshotDir, path) + '.png'
+
+        // create dirs recursively to avoid errors, dropping the file at the end first
+        const pathWithoutFile = screenshotPath.split('/').slice(0, -1).join('/')
+        diskUtil.createDir(pathWithoutFile)
+
+        this.log.info(`Taking screenshot at "${screenshotPath}"`)
+
+        if (this.page instanceof Page) {
+            await this.page.screenshot({
+                path: screenshotPath,
+            })
+        } else {
+            throw new Error('Cannot take screenshot from an iFrame!')
+        }
     }
 }
 

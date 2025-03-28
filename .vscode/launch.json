@@ -17,6 +17,19 @@
 		{
 			"type": "node",
 			"request": "launch",
+			"name": "screenshots",
+			"runtimeExecutable": "yarn",
+			"runtimeArgs": [
+				"run",
+				"screenshots"
+			],
+			"cwd": "${workspaceFolder}",
+			"console": "integratedTerminal",
+			"internalConsoleOptions": "neverOpen"
+		},
+		{
+			"type": "node",
+			"request": "launch",
 			"name": "all",
 			"runtimeExecutable": "yarn",
 			"runtimeArgs": [
