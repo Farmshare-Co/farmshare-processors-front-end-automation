@@ -2,6 +2,8 @@ import { AbstractSingleRun } from '../Runner/SingleRun'
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
+        debugger
+
         // can't do this one unless logged in as admin
         // await this.runner.redirect('/admin/job-export')
         // await wait(3000)

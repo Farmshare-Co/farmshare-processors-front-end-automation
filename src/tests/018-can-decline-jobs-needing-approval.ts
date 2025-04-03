@@ -9,7 +9,7 @@ export default class Run extends AbstractSingleRun {
         await this.addJobAsProducer()
         await this.runner.close()
 
-        await this.clickNav('processor')
+        await this.navigateToAgenda()
         await this.refreshAndWaitForLoad()
 
         const jobIds = await this.declineAllJobsNeedingApproval()

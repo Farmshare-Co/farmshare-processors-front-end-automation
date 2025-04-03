@@ -4,8 +4,7 @@ import { AbstractSingleRun } from '../Runner/SingleRun'
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
         await this.deleteAllJobsInProgress()
-        await this.clickNav('processor')
-        await this.clickTab('settings')
+        await this.navigateToSettings()
 
         await this.toggleChips(
             ['beef', 'whole'],
@@ -23,7 +22,7 @@ export default class Run extends AbstractSingleRun {
         )
 
         await this.clickSubmit()
-        await this.clickTab('add-job')
+        await this.navigateToAddJob()
         await this.fillOutAddJobForm({
             firstName: process.env.CUSTOMER_2_FIRST ?? 'John',
             lastName: process.env.CUSTOMER_2_LAST ?? 'Doe',
@@ -47,8 +46,7 @@ export default class Run extends AbstractSingleRun {
         await this.clickSubmit()
 
         const jobId = this.parseJobIdFromUrl()
-        await this.clickNav('processor')
-        await this.clickTab('jobs')
+        await this.navigateToJobs()
 
         //TODO use CUSTOMER_2_FARM
         await this.navigateToJobDetailBySearch({
@@ -74,6 +72,6 @@ export default class Run extends AbstractSingleRun {
 
         await this.clickSubmit()
 
-        await this.assertSuccessfulAction()
+        await this.assertSuccessfulActionSuccessClassname()
     }
 }

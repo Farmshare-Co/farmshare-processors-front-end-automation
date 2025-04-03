@@ -4,10 +4,34 @@ import wait from '../Runner/wait'
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
-        await this.clickNav('processor')
-        await this.clickTab('settings')
+        await this.navigateToSettings()
         await this.runner.click('.btn-weighted_animal_unit')
         await this.runner.clickAtIndex('.btn-ghost', 1)
+
+        await this.toggleChips(
+            ['beef', 'hog'],
+            ['bison', 'lamb', 'goat', 'venison', 'yak']
+        )
+
+        await wait(1500)
+        const autoSchedulingIsEnabled0 = await this.runner.getValue(
+            '[name="autoSchedulingSettings.0.isEnabled"]'
+        )
+
+        const autoSchedulingIsEnabled1 = await this.runner.getValue(
+            '[name="autoSchedulingSettings.1.isEnabled"]'
+        )
+
+        if (autoSchedulingIsEnabled0 == 'true') {
+            await this.runner.click(
+                '[name="autoSchedulingSettings.0.isEnabled"]'
+            )
+        }
+        if (autoSchedulingIsEnabled1 == 'true') {
+            await this.runner.click(
+                '[name="autoSchedulingSettings.1.isEnabled"]'
+            )
+        }
 
         await this.runner.setInputValue('.animalUnitCapacitySettings-beef', '0')
         await this.runner.setInputValue('.animalUnitCapacitySettings-hog', '0')

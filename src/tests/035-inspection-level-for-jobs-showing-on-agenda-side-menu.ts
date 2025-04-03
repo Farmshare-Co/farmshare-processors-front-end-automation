@@ -11,8 +11,7 @@ export default class Run extends AbstractSingleRun {
 
         const jobId = this.parseJobIdFromUrl()
 
-        await this.clickNav('processor')
-        await this.clickTab('calendar')
+        await this.navigateToCalendar()
 
         const today = new Date()
         const { isoFormat } = this.addDays(today, 0)

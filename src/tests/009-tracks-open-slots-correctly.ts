@@ -15,7 +15,7 @@ export default class Run extends AbstractSingleRun {
 
         await this.runner.close()
 
-        await this.clickTab('add-job')
+        await this.navigateToAddJob()
 
         const actual = await this.getSlotsRemainingOnAddJobTab()
 
@@ -33,7 +33,7 @@ export default class Run extends AbstractSingleRun {
 
         await this.runner.close()
 
-        await this.clickTab('add-job')
+        await this.navigateToAddJob()
 
         const actual = await this.getSlotsRemainingOnAddJobTab()
 

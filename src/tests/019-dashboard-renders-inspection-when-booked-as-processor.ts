@@ -1,9 +1,12 @@
 import { assert } from '@sprucelabs/test-utils'
 import { AbstractSingleRun } from '../Runner/SingleRun'
+import wait from '../Runner/wait'
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
         await this.declineAllJobsNeedingApproval()
+
+        await wait(5000)
 
         const inspections = ['Exempt', 'USDA']
 
@@ -14,7 +17,7 @@ export default class Run extends AbstractSingleRun {
                 inspection: inspection.toLowerCase(),
             })
 
-            await this.clickNav('processor')
+            await this.navigateToAgenda()
 
             const texts = await this.runner.getInnerTextAll(
                 `[data-id="${id}"] td a`

@@ -5,8 +5,8 @@ import wait from '../Runner/wait'
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
         await this.deleteAllJobsInProgress()
-        await this.clickNav('processor')
-        await this.clickTab('settings')
+        await this.navigateToSettings()
+
         await this.runner.click('.btn-species_inspection')
         await this.toggleChips(['usda'], ['exempt', 'state'])
 

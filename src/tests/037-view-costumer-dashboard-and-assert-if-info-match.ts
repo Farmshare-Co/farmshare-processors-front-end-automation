@@ -5,8 +5,7 @@ import wait from '../Runner/wait'
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
         await this.deleteAllJobsInProgress()
-        await this.clickNav('processor')
-        await this.clickTab('add-job')
+        await this.navigateToAddJob()
 
         const expectedFarmerData: AddJobAsProducerOptions = {
             firstName: process.env.CUSTOMER_2_FIRST ?? 'John',
@@ -19,8 +18,7 @@ export default class Run extends AbstractSingleRun {
 
         await this.addJob(expectedFarmerData)
 
-        await this.clickNav('processor')
-        await this.clickTab('customers')
+        await this.navigateToCustomers()
 
         await this.runner.setInputValue(
             '.search-input',

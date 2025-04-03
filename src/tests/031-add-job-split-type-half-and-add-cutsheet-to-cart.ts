@@ -1,17 +1,17 @@
 import { assert } from '@sprucelabs/test-utils'
 import { AbstractSingleRun } from '../Runner/SingleRun'
+import wait from '../Runner/wait'
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
         await this.deleteAllJobsInProgress()
-        await this.clickNav('processor')
-        await this.clickTab('settings')
+        await this.navigateToSettings()
         await this.toggleChips(
             ['whole', 'half'],
             ['quarters', 'half_and_two_quarters']
         )
         await this.clickSubmit()
-        await this.clickTab('add-job')
+        await this.navigateToAddJob()
 
         //TODO: move to CUSTOMER_2_ENV
         await this.fillOutAddJobForm({
@@ -55,6 +55,7 @@ export default class Run extends AbstractSingleRun {
         })
         await this.clickSaveInDialog()
         await this.clickSubmit()
+        await wait(5000)
         const jobId = this.parseJobIdFromUrl()
         await this.navigateToJobDetailBySearch({
             jobId,

@@ -8,7 +8,7 @@ export default class Run extends AbstractSingleRun {
 
         const { id } = await this.addJobAsProcessor()
 
-        await this.clickNav('processor')
+        await this.navigateToAgenda()
 
         await wait(1000)
 

@@ -13,11 +13,7 @@ export default class Run extends AbstractSingleRun {
         }
         const { id } = await this.addJobAsProcessor(expectedFarmerData)
 
-        await this.clickNav('processor')
-
-        await wait(2000)
-
-        await this.clickTab('jobs')
+        await this.navigateToJobs()
 
         await wait(2000)
 

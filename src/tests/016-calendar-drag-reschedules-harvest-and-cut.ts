@@ -20,8 +20,7 @@ export default class Run extends AbstractSingleRun {
 
         await this.clickSaveInDialog()
 
-        await this.clickNav('processor')
-        await this.clickTab('calendar')
+        await this.navigateToCalendar()
 
         await this.runner.click('.btn-harvest')
         await this.runner.click('.btn-cut')

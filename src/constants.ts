@@ -2,7 +2,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 export const ID_CHUCK_ROAST_EXEMPT =
-    process.env.ID_CHUCK_ROAST_EXEMPT ?? '66fac7b8e56b9f6d628a53ff'
+    process.env.ID_CHUCK_ROAST_EXEMPT ?? '67d81796bcbceaab390f5e75'
 export const ID_ARM_ROAST_EXEMPT =
     process.env.ID_ARM_ROAST_EXEMPT ?? '66fac7b8e56b9f6d628a5401'
 export const ID_BLADE_EXEMPT =
@@ -44,10 +44,10 @@ export const ID_SIRLOIN_CAP_EXEMPT =
     process.env.ID_SIRLOIN_CAP_EXEMPT ?? '66fac7b8e56b9f6d628a53e4'
 
 export const ID_CHUCK_ROAST_USDA =
-    process.env.ID_CHUCK_ROAST_USDA ?? '6723c7cf4718325683ea2e4e'
+    process.env.ID_CHUCK_ROAST_USDA ?? '67d81796bcbceaab390f5e01'
 export const ID_ARM_ROAST_USDA =
-    process.env.ID_ARM_ROAST_USDA ?? '6723c7cf4718325683ea2e50'
+    process.env.ID_ARM_ROAST_USDA ?? '67d81796bcbceaab390f5e03'
 export const ID_BLADE_USDA =
-    process.env.ID_BLADE_USDA ?? '6723c7cf4718325683ea2e4f'
+    process.env.ID_BLADE_USDA ?? '67d81796bcbceaab390f5e02'
 export const ID_EYE_ROAST_USDA =
-    process.env.ID_EYE_ROAST_USDA ?? '6723c7cf4718325683ea2e51'
+    process.env.ID_EYE_ROAST_USDA ?? '67d81796bcbceaab390f5e04'

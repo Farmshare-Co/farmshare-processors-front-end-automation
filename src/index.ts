@@ -1,6 +1,16 @@
-import { assert } from '@sprucelabs/test-utils'
+import { assert, generateId } from '@sprucelabs/test-utils'
+import {
+    ID_ARM_ROAST_EXEMPT,
+    ID_ARM_ROAST_USDA,
+    ID_BLADE_EXEMPT,
+    ID_BLADE_USDA,
+    ID_CHUCK_ROAST_EXEMPT,
+    ID_CHUCK_ROAST_USDA,
+    ID_EYE_ROAST_EXEMPT,
+    ID_EYE_ROAST_USDA,
+} from './constants'
 import Runner from './Runner/Runner'
-import { AbstractSingleRun } from './Runner/SingleRun'
+import { AbstractSingleRun, AddJobAsProducerOptions } from './Runner/SingleRun'
 import wait from './Runner/wait'
 
 void (async () => {
@@ -12,50 +22,38 @@ void (async () => {
     console.log('TEST PASSED!')
 })()
 
+//046
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
-        await this.clickNav('processor')
-        await this.clickTab('capabilities')
+        await this.navigateToCapabilities()
+        await this.runner.click('button.beef-exempt')
 
-        await this.runner.click('[name="editMode"]')
-        await this.runner.click('.cut-header button')
-        await this.setInputValue('name', 'Top Serlain (USDA)')
-        await this.setInputValue('primal', 'Chuck')
-        await this.setInputValue('type', 'chop')
-        await this.clickSaveInDialog()
+        let chuckRoastId = ID_CHUCK_ROAST_EXEMPT
+        let armRoastId = ID_ARM_ROAST_EXEMPT
+        let bladeId = ID_BLADE_EXEMPT
+        let eyeRoastId = ID_EYE_ROAST_EXEMPT
 
-        await this.runner.click('[name="editMode"]')
+        await this.clearBlockedByCuts(chuckRoastId)
 
-        await this.runner.click('.card-body button')
-        const prop = await this.runner.getProp('.card-body button', 'className')
-        const chipClass = prop?.match(/\bchip-[^\s]+/)?.[0] || ''
-        await this.clickSubmit()
-        await this.clickTab('cutsheets')
-        await this.clickAddCutsheet()
-        await this.setInputValue('inspectionLevel', 'exempt')
+        // await this.executeBlockedByRoutine(
+        //     chuckRoastId,
+        //     armRoastId,
+        //     bladeId,
+        //     eyeRoastId
+        // )
 
-        const firstCheck = await this.runner.getProp(
-            `.${chipClass}`,
-            'className',
-            {
-                shouldThrowIfNotFound: false,
-            }
+        await this.runner.click('[data-rr-ui-event-key="beef-usda"]')
+
+        chuckRoastId = ID_CHUCK_ROAST_USDA
+        armRoastId = ID_ARM_ROAST_USDA
+        bladeId = ID_BLADE_USDA
+        eyeRoastId = ID_EYE_ROAST_USDA
+
+        await this.executeBlockedByRoutine(
+            chuckRoastId,
+            armRoastId,
+            bladeId,
+            eyeRoastId
         )
-
-        assert.isEqual(firstCheck, null)
-
-        await this.setInputValue('inspectionLevel', 'usda')
-
-        const secondCheck = await this.runner.getProp(
-            `.${chipClass}`,
-            'className',
-            {
-                shouldThrowIfNotFound: false,
-            }
-        )
-
-        assert.isNotEqual(secondCheck, null)
-
-        await wait(5000)
     }
 }

@@ -3,8 +3,7 @@ import wait from '../Runner/wait'
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
-        await this.clickNav('processor')
-        await this.clickTab('settings')
+        await this.navigateToSettings()
         await this.toggleChips(['yak'], [])
         await this.toggleChipsByLabel(['exempt', 'whole'], [], 'Yak')
 
@@ -31,7 +30,7 @@ export default class Run extends AbstractSingleRun {
 
         await wait(1000)
 
-        await this.clickTab('add-job')
+        await this.navigateToAddJob()
         await this.runner.click('.btn-yak')
         await this.addJob({
             inspection: false,

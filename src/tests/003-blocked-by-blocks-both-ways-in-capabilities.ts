@@ -12,15 +12,15 @@ import { AbstractSingleRun } from '../Runner/SingleRun'
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
-        await this.clickNav('processor')
-        await this.clickTab('capabilities')
-
+        await this.navigateToCapabilities()
         await this.runner.click('button.beef-exempt')
 
         let chuckRoastId = ID_CHUCK_ROAST_EXEMPT
         let armRoastId = ID_ARM_ROAST_EXEMPT
         let bladeId = ID_BLADE_EXEMPT
         let eyeRoastId = ID_EYE_ROAST_EXEMPT
+
+        await this.clearBlockedByCuts(chuckRoastId)
 
         await this.executeBlockedByRoutine(
             chuckRoastId,

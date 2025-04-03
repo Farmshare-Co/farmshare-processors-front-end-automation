@@ -8,7 +8,7 @@ import { AbstractSingleRun } from '../Runner/SingleRun'
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
-        await this.clickTab('capabilities')
+        await this.navigateToCapabilities()
 
         await this.runner.click('button.beef-exempt')
 
@@ -19,7 +19,7 @@ export default class Run extends AbstractSingleRun {
             ID_SIRLOIN_CAP_EXEMPT
         )
 
-        await this.clickTab('cutsheets')
+        await this.navigateToCutsheets()
         await this.clickAddCutsheet()
         await this.selectInspectionLevelOnCutsheet('exempt')
         await this.fillOutRandomNameOnCutsheet()

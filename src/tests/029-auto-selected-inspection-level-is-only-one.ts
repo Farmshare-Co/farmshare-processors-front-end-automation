@@ -4,8 +4,7 @@ import { AbstractSingleRun } from '../Runner/SingleRun'
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
         await this.deleteAllJobsInProgress()
-        await this.clickNav('processor')
-        await this.clickTab('settings')
+        await this.navigateToSettings()
         const usdaIsEnabled = await this.getIsChipSelected('usda')
         const exemptIsEnabled = await this.getIsChipSelected('exempt')
         const stateIsEnabled = await this.getIsChipSelected('state')
@@ -22,8 +21,7 @@ export default class Run extends AbstractSingleRun {
 
         await this.clickSubmit()
 
-        await this.clickNav('processor')
-        await this.clickTab('add-job')
+        await this.navigateToAddJob()
 
         await this.fillOutAddJobForm({
             inspection: false,

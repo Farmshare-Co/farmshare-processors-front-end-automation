@@ -6,7 +6,7 @@ export default class Run extends AbstractSingleRun {
         await this.deleteAllJobsInProgress()
 
         await this.setDepositAndVerify('0')
-        await this.clickNav('processor')
+        await this.navigateToAgenda()
 
         const inspections = ['Exempt', 'USDA', false]
 
@@ -26,7 +26,7 @@ export default class Run extends AbstractSingleRun {
             await this.runner.close()
             await this.refreshAndWaitForLoad()
 
-            await this.clickNav('processor')
+            await this.navigateToAgenda()
 
             const texts = await this.runner.getInnerTextAll(
                 `[data-id="${id}"] td a`

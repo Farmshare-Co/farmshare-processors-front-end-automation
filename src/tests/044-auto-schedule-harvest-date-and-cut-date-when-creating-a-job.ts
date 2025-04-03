@@ -2,10 +2,10 @@ import { assert } from '@sprucelabs/test-utils'
 import { AbstractSingleRun } from '../Runner/SingleRun'
 import wait from '../Runner/wait'
 
+//did not work
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
-        await this.clickNav('processor')
-        await this.clickTab('settings')
+        await this.navigateToSettings()
         await this.toggleChips(
             ['beef'],
             ['hog', 'bison', 'lamb', 'goat', 'venison', 'yak']
@@ -36,7 +36,7 @@ export default class Run extends AbstractSingleRun {
 
         await wait(3000)
 
-        await this.clickTab('add-job')
+        await this.navigateToAddJob()
         const { date } = await this.addJob()
 
         await this.clickTab('heads')

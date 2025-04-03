@@ -3,6 +3,8 @@ import { AbstractSingleRun } from '../Runner/SingleRun'
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
+        debugger
+
         await this.deleteAllJobsInProgress()
         const { id } = await this.addJobAsProcessor()
 

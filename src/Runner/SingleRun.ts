@@ -34,9 +34,7 @@ export abstract class AbstractSingleRun implements SingleRun {
             await this.loginUsingGoogle()
         }
 
-        await this.runner.waitForSelector(
-            '[data-rr-ui-event-key="capabilities"]'
-        )
+        await this.runner.waitForSelector('.btn.btn-primary')
     }
 
     private async loginWithEmailAndPassword() {
@@ -185,8 +183,7 @@ export abstract class AbstractSingleRun implements SingleRun {
     }
 
     protected async addJobAsProcessor(options?: AddJobOptions) {
-        await this.clickNav('processor')
-        await this.clickTab('add-job')
+        await this.navigateToAddJob()
         const results = await this.addJob(options)
         return results
     }
@@ -264,6 +261,7 @@ export abstract class AbstractSingleRun implements SingleRun {
         const match = url.match(
             /\/(?:processing-job|scheduling)\/([^/]+)\/(?:details|cutsheets)(?:\?.*)?$/
         )
+
         const id = match?.[1]
         return id
     }
@@ -317,8 +315,7 @@ export abstract class AbstractSingleRun implements SingleRun {
     }
 
     protected async setDepositAndVerify(value: string) {
-        await this.clickNav('processor')
-        await this.clickTab('settings')
+        await this.navigateToSettings()
         await this.setInputValue('schedulingDeposit', value)
         await this.clickSubmit()
         await this.runner.refresh()
@@ -326,8 +323,7 @@ export abstract class AbstractSingleRun implements SingleRun {
     }
 
     public async deleteAllJobsInProgress(): Promise<void> {
-        await this.clickNav('processor')
-        await this.clickTab('agenda')
+        await this.navigateToAgenda()
 
         do {
             const button = await this.runner.get('.in-progress .btn-cancel', {
@@ -379,8 +375,13 @@ export abstract class AbstractSingleRun implements SingleRun {
         await this.clickDaysAgendaInCalendarDay(iosFormatDate)
     }
 
-    protected async clickNav(name: string) {
-        await this.runner.click(`.${name}.nav-link`)
+    protected async clickNav(name: string, isDropDown?: boolean) {
+        if (isDropDown) {
+            await this.runner.click(`#${name}-dropdown`)
+        } else {
+            await this.runner.click(`#${name}`)
+        }
+
         await this.waitForPageLoad()
     }
 
@@ -426,6 +427,8 @@ export abstract class AbstractSingleRun implements SingleRun {
             })
         }
 
+        await wait(4000)
+
         const id = this.parseJobIdFromUrl()
 
         return { date, slotsRemaining, id }
@@ -442,11 +445,13 @@ export abstract class AbstractSingleRun implements SingleRun {
         await this.runner.focusOnFrame('embedded-checkout')
 
         //optionally skip confirmation view
+        await wait(5000)
+        debugger
         const all = await this.runner.findAll('button.LinkActionButton', {
             shouldThrowIfNotFound: false,
         })
 
-        await wait(1000)
+        await wait(2000)
         for (const link of all) {
             const innerHtml = await link.getProperty('innerHTML')
             const text = innerHtml.toString()
@@ -651,7 +656,9 @@ export abstract class AbstractSingleRun implements SingleRun {
         await this.clickChipEdit(cut1Id)
 
         await this.setBlockedByValue(0, cut2Id)
+
         await this.setBlockedByValue(1, cut3Id)
+
         await this.setBlockedByValue(2, cut4Id)
 
         await this.clickSaveInDialog()
@@ -704,7 +711,7 @@ export abstract class AbstractSingleRun implements SingleRun {
         await this.assertRetainedFirst2BlockedBy(cut1Id, cut2Id, cut3Id)
     }
 
-    private async setBlockedByValue(idx: number, armRoastId: string) {
+    protected async setBlockedByValue(idx: number, armRoastId: string) {
         await this.runner.select(
             `select[name="selectedCutBlockers.${idx}"]`,
             armRoastId
@@ -760,17 +767,68 @@ export abstract class AbstractSingleRun implements SingleRun {
         search: string
     }) {
         const { jobId, search } = options
-        await this.clickNav('processor')
-        await this.clickTab('jobs')
+        await this.navigateToJobs()
         await this.runner.setInputValue('.search-job', search)
 
         await this.runner.click('[data-id="' + jobId + '"] a')
     }
 
-    protected async assertSuccessfulAction() {
+    protected async assertSuccessfulActionSuccessClassname() {
         const success = await this.runner.get('.toast-container .bg-success')
 
         assert.isTrue(!!success)
+    }
+
+    protected async assertSuccessfulAction() {
+        const success = await this.runner.get('.toast-container .bg-primary')
+
+        assert.isTrue(!!success)
+    }
+
+    protected async navigateToCapabilities() {
+        await this.clickNav('settings', true)
+        await this.runner.click(`[href="/processor/capabilities"]`)
+    }
+
+    protected async navigateToSettings() {
+        await this.clickNav('settings', true)
+        await this.runner.click(`[href="/processor/settings"]`)
+    }
+
+    protected async navigateToAddJob() {
+        await this.clickNav('jobs', true)
+        await this.runner.click(`[href="/processor/add-job"]`)
+    }
+
+    protected async navigateToCalendar() {
+        await this.runner.click(`[href="/processor/calendar"]`)
+    }
+
+    protected async navigateToAgenda() {
+        await this.runner.click(`[href="/processor/agenda"]`)
+    }
+
+    protected async navigateToJobs() {
+        await this.clickNav('jobs', true)
+        await this.runner.click(`[href="/processor/jobs"]`)
+    }
+
+    protected async navigateToCustomers() {
+        await this.clickNav('customers', true)
+        await this.runner.click(`[href="/processor/customers"]`)
+    }
+
+    protected async navigateToCutsheets() {
+        await this.clickNav('settings', true)
+        await this.runner.click(`[href="/processor/cutsheets"]`)
+    }
+
+    protected async clearBlockedByCuts(cutId: string) {
+        await this.clickChipEdit(cutId)
+        await this.setBlockedByValue(0, '')
+        await this.setBlockedByValue(1, '')
+        await this.setBlockedByValue(2, '')
+        await this.clickSaveInDialog()
     }
 }
 
@@ -792,4 +850,5 @@ export interface AddJobAsProducerOptions extends AddJobOptions {
     zip?: string | false
     shouldCheckout?: boolean
     hasDeposit?: boolean
+    hasSmsCode?: boolean
 }

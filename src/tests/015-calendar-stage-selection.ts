@@ -1,7 +1,10 @@
 import { AbstractSingleRun } from '../Runner/SingleRun'
 
+//did not work
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
+        debugger
+
         await this.deleteAllJobsInProgress()
         const { date: dropoffDate } = await this.addJobAsProcessor()
 
@@ -19,8 +22,7 @@ export default class Run extends AbstractSingleRun {
 
         await this.clickSaveInDialog()
 
-        await this.clickNav('processor')
-        await this.clickTab('calendar')
+        await this.navigateToCalendar()
 
         await this.assertDayInCalendarIncludesEventAtStage(
             dropoffDate,

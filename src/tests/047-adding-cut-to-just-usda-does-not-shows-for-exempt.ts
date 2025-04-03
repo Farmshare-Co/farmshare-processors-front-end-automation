@@ -4,8 +4,7 @@ import wait from '../Runner/wait'
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
-        await this.clickNav('processor')
-        await this.clickTab('capabilities')
+        await this.navigateToCapabilities()
 
         await this.runner.click('[name="editMode"]')
         await this.runner.click('.cut-header button')
@@ -16,13 +15,17 @@ export default class Run extends AbstractSingleRun {
 
         await this.runner.click('[name="editMode"]')
 
-        await this.runner.click('.card-body button')
-        const prop = await this.runner.getProp('.card-body button', 'className')
+        await this.runner.click('.cuts-card button')
+
+        const prop = await this.runner.getProp('.cuts-card button', 'className')
         const chipClass = prop?.match(/\bchip-[^\s]+/)?.[0] || ''
         await this.clickSubmit()
-        await this.clickTab('cutsheets')
+
+        await this.navigateToCutsheets()
         await this.clickAddCutsheet()
         await this.setInputValue('inspectionLevel', 'exempt')
+
+        await wait(5000)
 
         const firstCheck = await this.runner.getProp(
             `.${chipClass}`,

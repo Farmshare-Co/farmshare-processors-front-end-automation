@@ -10,8 +10,7 @@ export default class Run extends AbstractSingleRun {
         })
 
         const exemptJobId = this.parseJobIdFromUrl()
-        await this.clickNav('processor')
-        await this.clickTab('jobs')
+        await this.navigateToJobs()
         await this.verifyInspectionLevelInList(exemptJobId!, 'exempt')
 
         await this.addJobAsProcessor({
@@ -20,8 +19,7 @@ export default class Run extends AbstractSingleRun {
         })
 
         const usdaJobId = this.parseJobIdFromUrl()
-        await this.clickNav('processor')
-        await this.clickTab('jobs')
+        await this.navigateToJobs()
         await this.verifyInspectionLevelInList(usdaJobId!, 'usda')
     }
 }
