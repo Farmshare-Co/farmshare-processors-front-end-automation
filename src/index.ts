@@ -33,21 +33,31 @@ export default class Run extends AbstractSingleRun {
         let bladeId = ID_BLADE_EXEMPT
         let eyeRoastId = ID_EYE_ROAST_EXEMPT
 
-        await this.clearBlockedByCuts(chuckRoastId)
+        await this.clearBlockedByCuts([
+            chuckRoastId,
+            armRoastId,
+            bladeId,
+            eyeRoastId,
+        ])
 
-        // await this.executeBlockedByRoutine(
-        //     chuckRoastId,
-        //     armRoastId,
-        //     bladeId,
-        //     eyeRoastId
-        // )
-
+        await this.executeBlockedByRoutine(
+            chuckRoastId,
+            armRoastId,
+            bladeId,
+            eyeRoastId
+        )
         await this.runner.click('[data-rr-ui-event-key="beef-usda"]')
 
         chuckRoastId = ID_CHUCK_ROAST_USDA
         armRoastId = ID_ARM_ROAST_USDA
         bladeId = ID_BLADE_USDA
         eyeRoastId = ID_EYE_ROAST_USDA
+        await this.clearBlockedByCuts([
+            chuckRoastId,
+            armRoastId,
+            bladeId,
+            eyeRoastId,
+        ])
 
         await this.executeBlockedByRoutine(
             chuckRoastId,

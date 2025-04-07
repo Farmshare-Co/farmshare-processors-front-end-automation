@@ -823,12 +823,14 @@ export abstract class AbstractSingleRun implements SingleRun {
         await this.runner.click(`[href="/processor/cutsheets"]`)
     }
 
-    protected async clearBlockedByCuts(cutId: string) {
-        await this.clickChipEdit(cutId)
-        await this.setBlockedByValue(0, '')
-        await this.setBlockedByValue(1, '')
-        await this.setBlockedByValue(2, '')
-        await this.clickSaveInDialog()
+    protected async clearBlockedByCuts(cutIds: string[]) {
+        for (const cutId of cutIds) {
+            await this.clickChipEdit(cutId)
+            for (let i = 0; i < 3; i++) {
+                await this.setBlockedByValue(i, '')
+            }
+            await this.clickSaveInDialog()
+        }
     }
 }
 
