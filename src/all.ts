@@ -25,6 +25,7 @@ void (async () => {
             await single.run()
             log.info(`Finished ${match}`)
         } catch (err) {
+            debugger
             log.error(`Failed to run ${match}`)
             throw err
         }

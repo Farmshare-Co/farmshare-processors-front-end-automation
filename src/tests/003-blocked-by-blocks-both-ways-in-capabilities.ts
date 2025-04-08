@@ -20,7 +20,12 @@ export default class Run extends AbstractSingleRun {
         let bladeId = ID_BLADE_EXEMPT
         let eyeRoastId = ID_EYE_ROAST_EXEMPT
 
-        await this.clearBlockedByCuts(chuckRoastId)
+        await this.clearBlockedByCuts([
+            chuckRoastId,
+            armRoastId,
+            bladeId,
+            eyeRoastId,
+        ])
 
         await this.executeBlockedByRoutine(
             chuckRoastId,

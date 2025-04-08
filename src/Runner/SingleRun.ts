@@ -446,7 +446,7 @@ export abstract class AbstractSingleRun implements SingleRun {
 
         //optionally skip confirmation view
         await wait(5000)
-        debugger
+
         const all = await this.runner.findAll('button.LinkActionButton', {
             shouldThrowIfNotFound: false,
         })

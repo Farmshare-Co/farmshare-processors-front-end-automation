@@ -22,8 +22,6 @@ import wait from '../Runner/wait'
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
-        debugger
-
         await this.addJobAsProcessor()
 
         await this.clickAnimalHeadInJobDetails(0)
@@ -34,10 +32,13 @@ export default class Run extends AbstractSingleRun {
         await this.runner.click('.btn-create-new-cutsheet')
 
         await this.fillOutRandomNameOnCutsheet()
-        await this.selectValue('groundMeatSize', '1')
-        await this.selectValue('roastSize', '2-3')
-        await this.selectValue('steakThickness', '1')
-        await this.selectValue('steaksPerPack', '1')
+        await this.selectInspectionLevelOnCutsheet('usda')
+
+        debugger
+        await this.selectValue('selectedSpecifications.GroundMeatSize', '1')
+        await this.selectValue('selectedSpecifications.RoastSize', '2-3')
+        await this.selectValue('selectedSpecifications.SteakThickness', '1')
+        await this.selectValue('selectedSpecifications.SteaksPerPack', '1')
 
         await this.clickChip(ID_CHUCK_ROAST_EXEMPT)
         await this.assertChipIsDisabled(ID_BLADE_EXEMPT)
