@@ -2,17 +2,15 @@ import { assert } from '@sprucelabs/test-utils'
 import { AbstractSingleRun } from '../Runner/SingleRun'
 import wait from '../Runner/wait'
 
-// did not work
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
-        debugger
-
         await this.deleteAllJobsInProgress()
         await this.addJobAsProcessor()
 
+        debugger
         await this.navigateToAgenda()
 
-        await wait(2000)
+        await wait(4000)
 
         const firstRowDataId = await this.runner.getProp(
             '.in-progress tbody tr',

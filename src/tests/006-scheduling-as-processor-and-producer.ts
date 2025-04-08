@@ -8,7 +8,9 @@ export default class Run extends AbstractSingleRun {
         const actual = await this.getDepositAmount()
         assert.isEqual(actual, '-', 'Invalid deposit amount')
         await this.setDepositAndVerify('100')
-        await this.addJobAsProducer()
+        await this.addJobAsProducer({
+            zip: false,
+        })
         await this.runner.close()
     }
 

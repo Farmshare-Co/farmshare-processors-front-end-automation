@@ -192,7 +192,7 @@ export abstract class AbstractSingleRun implements SingleRun {
         const { date, slotsRemaining } = await this.fillOutAddJobForm(options)
 
         await this.clickSubmit()
-
+        await wait(5000)
         const id = this.parseJobIdFromUrl()
 
         return { date, slotsRemaining, id }
@@ -493,7 +493,7 @@ export abstract class AbstractSingleRun implements SingleRun {
     }
 
     protected async clickAnimalHeadInJobDetails(idx = 0) {
-        await wait(1000)
+        await wait(5000)
         await this.clickTabOnJobDetailsPage('heads')
         const link = await this.runner.findAll('.animal-heads-list a')
         await link[idx].click()
@@ -512,6 +512,7 @@ export abstract class AbstractSingleRun implements SingleRun {
     }
 
     protected async clickTabOnJobDetailsPage(tab: string) {
+        await wait(5000)
         await this.runner.click(`[data-rr-ui-event-key="${tab}"]`)
     }
 

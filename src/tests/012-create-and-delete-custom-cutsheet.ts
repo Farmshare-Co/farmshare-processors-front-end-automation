@@ -32,15 +32,16 @@ export default class Run extends AbstractSingleRun {
         await this.runner.click('.btn-create-new-cutsheet')
 
         await this.fillOutRandomNameOnCutsheet()
-        await this.selectInspectionLevelOnCutsheet('usda')
+        await this.selectInspectionLevelOnCutsheet('exempt')
 
-        debugger
-        await this.selectValue('selectedSpecifications.GroundMeatSize', '1')
-        await this.selectValue('selectedSpecifications.RoastSize', '2-3')
-        await this.selectValue('selectedSpecifications.SteakThickness', '1')
-        await this.selectValue('selectedSpecifications.SteaksPerPack', '1')
+        await this.selectValue('selectedSpecifications.Ground Meat Size', '1')
+        await this.selectValue('selectedSpecifications.Roast Size', '2-3')
+        await this.selectValue('selectedSpecifications.Steak Thickness', '1')
+        await this.selectValue('selectedSpecifications.Steaks/Pack', '1')
 
+        await wait(1000)
         await this.clickChip(ID_CHUCK_ROAST_EXEMPT)
+        debugger
         await this.assertChipIsDisabled(ID_BLADE_EXEMPT)
         await this.assertChipIsDisabled(ID_ARM_ROAST_EXEMPT)
         await this.assertChipIsEnabled(ID_EYE_ROAST_EXEMPT)

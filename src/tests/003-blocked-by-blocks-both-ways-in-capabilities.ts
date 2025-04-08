@@ -41,6 +41,13 @@ export default class Run extends AbstractSingleRun {
         bladeId = ID_BLADE_USDA
         eyeRoastId = ID_EYE_ROAST_USDA
 
+        await this.clearBlockedByCuts([
+            chuckRoastId,
+            armRoastId,
+            bladeId,
+            eyeRoastId,
+        ])
+
         await this.executeBlockedByRoutine(
             chuckRoastId,
             armRoastId,
