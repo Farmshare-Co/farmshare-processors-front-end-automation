@@ -109,12 +109,14 @@ export abstract class AbstractSingleRun implements SingleRun {
         await wait(3000)
     }
 
-    public clickChipEdit(id: string) {
-        return this.runner.click(`button.edit-chip-${id}`)
+    public async clickChipEdit(id: string) {
+        await wait(1000)
+        await this.runner.click(`button.edit-chip-${id}`)
     }
 
-    public clickChip(id: string) {
-        return this.runner.click(`button.chip-${id}`)
+    public async clickChip(id: string) {
+        await wait(1000)
+        await this.runner.click(`button.chip-${id}`)
     }
 
     protected async toggleChips(enable: string[], disable: string[]) {
@@ -405,6 +407,9 @@ export abstract class AbstractSingleRun implements SingleRun {
 
         await this.runner.openNewPage()
         await this.runner.redirect('/scheduling')
+        await wait(1000)
+        await this.runner.refresh()
+        await wait(1000)
 
         const selector = process.env.SCHEDULING_FARM_SLUG
             ? `.col .${process.env.SCHEDULING_FARM_SLUG} button`
@@ -567,6 +572,7 @@ export abstract class AbstractSingleRun implements SingleRun {
         dropoffDate: string,
         stage: CalendarEventStage
     ) {
+        await wait(1000)
         const match = await this.getDateCell(dropoffDate)
         const expected = this.generateCalendarEventTitle(stage)
 
@@ -803,10 +809,12 @@ export abstract class AbstractSingleRun implements SingleRun {
 
     protected async navigateToCalendar() {
         await this.runner.click(`[href="/processor/calendar"]`)
+        await wait(1000)
     }
 
     protected async navigateToAgenda() {
         await this.runner.click(`[href="/processor/agenda"]`)
+        await wait(1000)
     }
 
     protected async navigateToJobs() {

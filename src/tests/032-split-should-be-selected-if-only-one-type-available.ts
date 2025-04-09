@@ -1,5 +1,6 @@
 import { assert } from '@sprucelabs/test-utils'
 import { AbstractSingleRun } from '../Runner/SingleRun'
+import wait from '../Runner/wait'
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
@@ -44,11 +45,12 @@ export default class Run extends AbstractSingleRun {
         )
 
         await this.clickSubmit()
+        await wait(3000)
 
         const jobId = this.parseJobIdFromUrl()
+
         await this.navigateToJobs()
 
-        //TODO use CUSTOMER_2_FARM
         await this.navigateToJobDetailBySearch({
             jobId,
             search: process.env.CUSTOMER_2_FARM ?? "Jonh's Farm",

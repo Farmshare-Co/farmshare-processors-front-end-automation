@@ -48,7 +48,7 @@ export default class Run extends AbstractSingleRun {
 
         await this.clickSubmit()
 
-        await this.runner.refresh()
+        await this.refreshAndWaitForLoad()
 
         const beefValue = await this.runner.getValue(
             '.animalUnitCapacitySettings-beef'

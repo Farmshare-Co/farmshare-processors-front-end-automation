@@ -24,7 +24,7 @@ export default class Run extends AbstractSingleRun {
         })
 
         await this.runner.close()
-        await this.runner.refresh()
+        await this.refreshAndWaitForLoad()
 
         const innerText = await this.runner.getInnerText(`[data-id="${id}"] a`)
 

@@ -12,6 +12,10 @@ import { AbstractSingleRun } from '../Runner/SingleRun'
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
+        await this.navigateToSettings()
+        await this.toggleChips(['exempt', 'usda'], [])
+        await this.clickSubmit()
+
         await this.navigateToCapabilities()
         await this.runner.click('button.beef-exempt')
 

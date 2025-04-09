@@ -23,7 +23,7 @@ export default class Run extends AbstractSingleRun {
 
         await this.assertInputValueEquals(statusSeletor, status)
 
-        await this.runner.refresh()
+        await this.refreshAndWaitForLoad()
 
         await this.assertInputValueEquals(statusSeletor, status)
     }

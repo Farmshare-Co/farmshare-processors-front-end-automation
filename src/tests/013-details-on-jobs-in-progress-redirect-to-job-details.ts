@@ -7,7 +7,6 @@ export default class Run extends AbstractSingleRun {
         await this.deleteAllJobsInProgress()
         await this.addJobAsProcessor()
 
-        debugger
         await this.navigateToAgenda()
 
         await wait(4000)

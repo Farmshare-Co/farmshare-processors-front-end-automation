@@ -1,26 +1,4 @@
-import { assert, generateId } from '@sprucelabs/test-utils'
-import {
-    ID_ARM_ROAST_EXEMPT,
-    ID_ARM_ROAST_USDA,
-    ID_BACK_FAT_EXEMPT,
-    ID_BLADE_EXEMPT,
-    ID_BLADE_USDA,
-    ID_BONE_IN_ROAST_EXEMPT,
-    ID_CHUCK_ROAST_EXEMPT,
-    ID_CHUCK_ROAST_USDA,
-    ID_CHUCK_STEAK_EXEMPT,
-    ID_CUBE_STEAK_EXEMPT,
-    ID_DINO_EXEMPT,
-    ID_EYE_ROAST_EXEMPT,
-    ID_EYE_ROAST_USDA,
-    ID_FLANK_STEAK_EXEMPT,
-    ID_KOREAN_SHORT_RIBS_EXEMPT,
-    ID_PORTERHOUSE_EXEMPT,
-    ID_RIBEYE_EXEMPT,
-    ID_SIRLOIN_CAP_EXEMPT,
-    ID_SKIRT_STEAK_EXEMPT,
-    ID_WHOLE_SHANK_EXEMPT,
-} from './constants'
+import { assert } from '@sprucelabs/test-utils'
 import Runner from './Runner/Runner'
 import { AbstractSingleRun } from './Runner/SingleRun'
 import wait from './Runner/wait'
@@ -34,66 +12,23 @@ void (async () => {
     console.log('TEST PASSED!')
 })()
 
-//015
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
         await this.deleteAllJobsInProgress()
-        const { date: dropoffDate } = await this.addJobAsProcessor()
+        await this.declineAllJobsNeedingApproval()
+        await this.navigateToAddJob()
 
-        await this.clickAnimalHeadInJobDetails()
+        await this.fillOutAddJobForm({
+            inspection: 'usda',
+        })
 
-        await this.runner.click('.btn-edit-head-details')
+        await this.clickSubmit()
+        await wait(2000)
 
-        const { inputFormat: killDate, isoFormat: killDateCalendar } =
-            this.addDays(dropoffDate, 1)
-        const { inputFormat: cutDate, isoFormat: cutDateCalendar } =
-            this.addDays(dropoffDate, 2)
+        await this.navigateToAgenda()
 
-        await this.setInputValue('killDate', killDate)
-        await this.setInputValue('cutDate', cutDate)
+        const text = await this.runner.getInnerText('.needs-attention tr a')
 
-        await this.clickSaveInDialog()
-
-        await this.navigateToCalendar()
-
-        await this.assertDayInCalendarIncludesEventAtStage(
-            dropoffDate,
-            'Drop-off'
-        )
-
-        await this.runner.click('.btn-drop-off')
-
-        await this.assertDayInCalendarDoesNotIncludeEventAtStage(
-            dropoffDate,
-            'Drop-off'
-        )
-
-        await this.runner.click('.btn-harvest')
-
-        await this.assertDayInCalendarIncludesEventAtStage(
-            killDateCalendar,
-            'Harvest'
-        )
-
-        await this.runner.click('.btn-harvest')
-
-        await this.assertDayInCalendarDoesNotIncludeEventAtStage(
-            killDateCalendar,
-            'Harvest'
-        )
-
-        await this.runner.click('.btn-cut')
-
-        await this.assertDayInCalendarIncludesEventAtStage(
-            cutDateCalendar,
-            'Cut'
-        )
-
-        await this.runner.click('.btn-cut')
-
-        await this.assertDayInCalendarDoesNotIncludeEventAtStage(
-            cutDateCalendar,
-            'Cut'
-        )
+        assert.isTrue(text?.toLowerCase().includes('usda'))
     }
 }

@@ -3,8 +3,9 @@ import { AbstractSingleRun } from '../Runner/SingleRun'
 //did not work
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
-        debugger
         await this.deleteAllJobsInProgress()
+        await this.declineAllJobsNeedingApproval()
+
         const { date: dropoffDate } = await this.addJobAsProcessor()
         await this.clickAnimalHeadInJobDetails()
         await this.runner.click('.btn-edit-head-details')
@@ -16,31 +17,37 @@ export default class Run extends AbstractSingleRun {
         await this.setInputValue('cutDate', cutDate)
         await this.clickSaveInDialog()
         await this.navigateToCalendar()
+
         await this.assertDayInCalendarIncludesEventAtStage(
             dropoffDate,
             'Drop-off'
         )
         await this.runner.click('.btn-drop-off')
+
         await this.assertDayInCalendarDoesNotIncludeEventAtStage(
             dropoffDate,
             'Drop-off'
         )
         await this.runner.click('.btn-harvest')
+
         await this.assertDayInCalendarIncludesEventAtStage(
             killDateCalendar,
             'Harvest'
         )
         await this.runner.click('.btn-harvest')
+
         await this.assertDayInCalendarDoesNotIncludeEventAtStage(
             killDateCalendar,
             'Harvest'
         )
         await this.runner.click('.btn-cut')
+
         await this.assertDayInCalendarIncludesEventAtStage(
             cutDateCalendar,
             'Cut'
         )
         await this.runner.click('.btn-cut')
+
         await this.assertDayInCalendarDoesNotIncludeEventAtStage(
             cutDateCalendar,
             'Cut'

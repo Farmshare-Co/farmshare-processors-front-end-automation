@@ -41,7 +41,7 @@ export default class Run extends AbstractSingleRun {
 
         await wait(1000)
         await this.clickChip(ID_CHUCK_ROAST_EXEMPT)
-        debugger
+
         await this.assertChipIsDisabled(ID_BLADE_EXEMPT)
         await this.assertChipIsDisabled(ID_ARM_ROAST_EXEMPT)
         await this.assertChipIsEnabled(ID_EYE_ROAST_EXEMPT)
@@ -85,7 +85,7 @@ export default class Run extends AbstractSingleRun {
 
         assert.isEqual(lastCount, totalCutsheets, 'Cutsheet was not deleted')
 
-        await this.runner.refresh()
+        await this.refreshAndWaitForLoad()
 
         const refreshedCount = await this.getTotalCutsheets()
 

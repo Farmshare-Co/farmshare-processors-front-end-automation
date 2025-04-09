@@ -1,9 +1,11 @@
 import { assert } from '@sprucelabs/test-utils'
-import { AbstractSingleRun } from 'Runner/SingleRun'
-import wait from 'Runner/wait'
+import { AbstractSingleRun } from '../Runner/SingleRun'
+import wait from '../Runner/wait'
 
 export default class Run extends AbstractSingleRun {
     public async run(): Promise<void> {
+        await this.declineAllJobsNeedingApproval()
+        await this.deleteAllJobsInProgress()
         await this.addJobAsProcessor()
         await this.runner.setInputValue('[name="job-status"]', 'Killed')
         await this.setInputValue('animalHeads.0.hangingWeight', '1000')

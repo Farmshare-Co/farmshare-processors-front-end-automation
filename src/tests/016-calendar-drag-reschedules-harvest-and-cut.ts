@@ -21,6 +21,7 @@ export default class Run extends AbstractSingleRun {
             `[data-date="${killDateCalendar}"]`
         )
         await this.clickSaveInDialog()
+
         // everything should be adjusted by one day
         await this.assertDayInCalendarIncludesEventAtStage(
             this.addDays(dropoffDate, 1).isoFormat,
