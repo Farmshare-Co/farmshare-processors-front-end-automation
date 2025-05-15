@@ -12,7 +12,8 @@
 			],
 			"cwd": "${workspaceFolder}",
 			"console": "integratedTerminal",
-			"internalConsoleOptions": "neverOpen"
+			"internalConsoleOptions": "neverOpen",
+			"experimentalNetworking": "off"
 		},
 		{
 			"type": "node",
@@ -25,7 +26,8 @@
 			],
 			"cwd": "${workspaceFolder}",
 			"console": "integratedTerminal",
-			"internalConsoleOptions": "neverOpen"
+			"internalConsoleOptions": "neverOpen",
+			"experimentalNetworking": "off"
 		},
 		{
 			"type": "node",
@@ -38,7 +40,8 @@
 			],
 			"cwd": "${workspaceFolder}",
 			"console": "integratedTerminal",
-			"internalConsoleOptions": "neverOpen"
+			"internalConsoleOptions": "neverOpen",
+			"experimentalNetworking": "off"
 		}
 	]
 }

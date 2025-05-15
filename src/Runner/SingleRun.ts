@@ -34,7 +34,7 @@ export abstract class AbstractSingleRun implements SingleRun {
             await this.loginUsingGoogle()
         }
 
-        await this.runner.waitForSelector('.btn.btn-primary')
+        // await this.runner.waitForSelector('.btn.btn-primary')
     }
 
     private async loginWithEmailAndPassword() {
@@ -800,6 +800,7 @@ export abstract class AbstractSingleRun implements SingleRun {
     protected async navigateToSettings() {
         await this.clickNav('settings', true)
         await this.runner.click(`[href="/processor/settings"]`)
+        await this.runner.refresh()
     }
 
     protected async navigateToAddJob() {

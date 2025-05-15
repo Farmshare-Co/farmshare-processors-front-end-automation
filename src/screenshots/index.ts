@@ -40,29 +40,26 @@ export default class Run extends AbstractSingleRun {
             await this.runner.select('[name="vendor"]', vendorId)
             await this.clickSaveInDialog()
             await wait(1000)
+            await this.navigateToAgenda()
 
-            // if not configured, they won't have a capabilities tab
-            const found = await this.runner.get(
-                '[data-rr-ui-event-key="capabilities"]',
-                {
-                    shouldThrowIfNotFound: false,
-                }
-            )
+            // if not configured, they won't have a pending approval tab
+            const found = await this.runner.get('.pending-approvals', {
+                shouldThrowIfNotFound: false,
+            })
 
             if (!found) {
                 this.addVendorToSkipList(vendorId)
                 continue
             }
 
-            await this.clickNav('processor')
+            await this.navigateToAgenda()
             try {
                 await this.downloadAllCutsheetsOnJobs(vendorSlug)
             } catch (err: any) {
-                debugger
                 this.log.error('Failed to download cutsheets', err.stack)
             }
 
-            await this.clickNav('processor')
+            await this.navigateToAgenda()
 
             const foundCapabilities =
                 await this.takeScreensOfAllCapabilities(vendorSlug)
@@ -92,7 +89,7 @@ export default class Run extends AbstractSingleRun {
             bookingIndex++
         ) {
             if (bookingIndex > 0) {
-                await this.clickNav('processor')
+                await this.navigateToAgenda()
                 await wait(4000)
             }
 
@@ -106,7 +103,6 @@ export default class Run extends AbstractSingleRun {
         const jobId = this.parseJobIdFromUrl()
 
         if (!jobId) {
-            debugger
         }
 
         await this.clickTab('cutsheets')
@@ -183,7 +179,7 @@ export default class Run extends AbstractSingleRun {
     }
 
     private async takeScreensOfAllVendorCutsheets(vendorSlug: string) {
-        await this.clickTab('cutsheets')
+        await this.navigateToCutsheets()
 
         await wait(1000)
 
@@ -199,7 +195,9 @@ export default class Run extends AbstractSingleRun {
         ) {
             await this.runner.clickAtIndex('.table .dropdown', cutsheetIndex)
 
-            await this.runner.click('.dropdown-item')
+            await wait(1000)
+
+            await this.runner.click('.table .dropdown a')
 
             await wait(1000)
 
@@ -212,7 +210,7 @@ export default class Run extends AbstractSingleRun {
     }
 
     private async takeScreensOfAllCapabilities(vendorSlug: string) {
-        await this.clickTab('capabilities')
+        await this.navigateToCapabilities()
         await wait(1000)
 
         const alertMessage = await this.runner.get('.alert-danger', {
